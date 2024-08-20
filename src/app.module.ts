@@ -5,14 +5,13 @@ import { MikroOrmModule } from "@mikro-orm/nestjs";
 
 import { OpenTelemetryModule } from "@metinseylan/nestjs-opentelemetry";
 
-import { AuthModule } from "./auth/auth.module";
+import { AuthService } from "./auth/auth.service";
 import { AppLoggerMiddleware } from "./common/middleware/request-logger.middleware";
 import { validate } from "./common/validators/env.validator";
 import ormConfig from "./db/db.config";
-import { FileUploadsModule } from "./file-uploads/file-uploads.module";
-import { HealthModule } from "./health/health.module";
-import { RolesModule } from "./roles/roles.module";
-import { UserProfilesModule } from "./user-profiles/user-profiles.module";
+import { StudentsModule } from "./students/students.module";
+import { TeachersModule } from "./teachers/teachers.module";
+import { UniqueCodeModule } from "./unique-code/unique-code.module";
 import { UsersModule } from "./users/users.module";
 import { WebsocketExampleModule } from "./websocket-example/websocket-example.module";
 
@@ -29,17 +28,14 @@ import { WebsocketExampleModule } from "./websocket-example/websocket-example.mo
     OpenTelemetryModule.forRoot({
       serviceName: "Project Backend",
     }),
-
-    UsersModule,
-    AuthModule,
-    RolesModule,
-    FileUploadsModule,
     WebsocketExampleModule,
-    UserProfilesModule,
-    HealthModule,
+    UsersModule,
+    StudentsModule,
+    TeachersModule,
+    UniqueCodeModule,
   ],
   controllers: [],
-  providers: [Logger],
+  providers: [Logger, AuthService],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer): void {
