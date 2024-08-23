@@ -1,9 +1,20 @@
-import { Entity, EntityRepositoryType, OneToOne, PrimaryKey, Property, Rel } from "@mikro-orm/core";
+import {
+  Entity,
+  EntityRepositoryType,
+  Enum,
+  OneToOne,
+  PrimaryKey,
+  Property,
+  Rel,
+} from "@mikro-orm/core";
 
 import { UsersRepository } from "@/users/users.repository";
 
+import { EUserGender } from "../enums/gender.enum";
+import { EUserRole } from "../enums/roles.enum";
 import { CustomBaseEntity } from "./custom-base.entity";
-import { UserProfile } from "./user-profiles.entity";
+import { Student } from "./students.entity";
+import { Teacher } from "./teachers.entity";
 
 @Entity({
   tableName: "users",
@@ -12,22 +23,36 @@ import { UserProfile } from "./user-profiles.entity";
 export class User extends CustomBaseEntity {
   [EntityRepositoryType]?: UsersRepository;
 
-  constructor(email: string, password?: string) {
-    super();
-
-    this.email = email;
-    this.password = password;
-  }
-
   @PrimaryKey({ autoincrement: true })
   id!: number;
+
+  @Property({ fieldName: "first_name" })
+  firstName!: string;
+
+  @Property({ fieldName: "last_name" })
+  lastName!: string;
+
+  @Property()
+  address!: string;
+
+  @Property({ fieldName: "phone_number" })
+  phoneNumber!: string;
 
   @Property({ unique: true })
   email!: string;
 
-  @Property({ nullable: true })
-  password?: string | null;
+  @Property()
+  password!: string;
 
-  @OneToOne(() => UserProfile, { mappedBy: (userProfile) => userProfile.user })
-  userProfile!: Rel<UserProfile>;
+  @Enum(() => EUserGender)
+  gender!: EUserGender;
+
+  @Enum(() => EUserRole)
+  role!: EUserRole;
+
+  @OneToOne(() => Student, { mappedBy: (student) => student.user })
+  student!: Rel<Student>;
+
+  @OneToOne(() => Teacher, { mappedBy: (teacher) => teacher.user })
+  teacher!: Rel<Teacher>;
 }
