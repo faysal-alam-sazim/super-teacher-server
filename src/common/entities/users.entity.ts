@@ -32,20 +32,14 @@ export class User extends CustomBaseEntity {
   @Property({ fieldName: "last_name" })
   lastName!: string;
 
-  @Property()
-  address!: string;
-
-  @Property({ fieldName: "phone_number" })
-  phoneNumber!: string;
+  @Enum(() => EUserGender)
+  gender!: EUserGender;
 
   @Property({ unique: true })
   email!: string;
 
   @Property()
   password!: string;
-
-  @Enum(() => EUserGender)
-  gender!: EUserGender;
 
   @Enum(() => EUserRole)
   role!: EUserRole;

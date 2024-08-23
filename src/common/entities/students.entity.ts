@@ -23,6 +23,12 @@ export class Student extends CustomBaseEntity {
   @PrimaryKey({ autoincrement: true })
   id!: number;
 
+  @Property()
+  address!: string;
+
+  @Property({ fieldName: "phone_number" })
+  phoneNumber!: string;
+
   @Enum(() => EStudentEducationLevel)
   educationLevel!: EStudentEducationLevel;
 

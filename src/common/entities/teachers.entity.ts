@@ -19,7 +19,7 @@ export class Teacher extends CustomBaseEntity {
   majorSubject!: string;
 
   @Property({ fieldName: "subjects_to_teach" })
-  subjectsToTeach!: string;
+  subjectsToTeach!: Array<string>;
 
   @OneToOne(() => User)
   user!: Rel<User>;
