@@ -35,11 +35,11 @@ export class Student extends CustomBaseEntity {
   @Enum(() => EMedium)
   medium!: EMedium | null;
 
-  @Property({ nullable: true })
-  class!: string | null;
-
   @Enum(() => EDegree)
   degree!: EDegree | null;
+
+  @Property({ nullable: true })
+  class!: string | null;
 
   @Property({ nullable: true })
   degreeName!: string | null;
