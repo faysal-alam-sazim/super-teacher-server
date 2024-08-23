@@ -29,15 +29,16 @@ export class User extends CustomBaseEntity {
     gender: EUserGender,
     email: string,
     password: string,
+    role: EUserRole,
   ) {
     super();
 
     this.firstName = firstName;
     this.lastName = lastName;
     this.gender = gender;
-
     this.email = email;
     this.password = password;
+    this.role = role;
   }
 
   @PrimaryKey({ autoincrement: true })

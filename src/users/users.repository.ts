@@ -1,8 +1,9 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 
-import { EntityRepository } from "@mikro-orm/postgresql";
+import { EntityRepository, wrap } from "@mikro-orm/postgresql";
 
 import { Student } from "@/common/entities/students.entity";
+import { Teacher } from "@/common/entities/teachers.entity";
 import { EUserRole } from "@/common/enums/roles.enum";
 
 import { User } from "../common/entities/users.entity";
@@ -10,29 +11,26 @@ import { CreateUserDto } from "./users.dtos";
 
 @Injectable()
 export class UsersRepository extends EntityRepository<User> {
-  async createStudent(createUserDto: CreateUserDto): Promise<User> {
-    let user: User;
+  createStudent(createUserDto: CreateUserDto): Promise<User> {
+    return this.em.transactional(async (em) => {
+      const { firstName, lastName, gender, email, password, studentInput } = createUserDto;
 
-    await this.em.transactional(async (em) => {
+      if (!studentInput) {
+        throw new BadRequestException("Student Information required");
+      }
+
       const {
-        firstName,
-        lastName,
-        gender,
-        email,
-        password,
-        studentInput: {
-          address,
-          phoneNumber,
-          educationLevel,
-          medium,
-          class: className,
-          degree,
-          degreeName,
-          semesterYear,
-        },
-      } = createUserDto;
+        address,
+        phoneNumber,
+        educationLevel,
+        medium,
+        class: className,
+        degree,
+        degreeName,
+        semesterYear,
+      } = studentInput;
 
-      user = new User(firstName, lastName, gender, email, password);
+      const user = new User(firstName, lastName, gender, email, password, EUserRole.STUDENT);
       const student = new Student(
         address,
         phoneNumber,
@@ -44,14 +42,33 @@ export class UsersRepository extends EntityRepository<User> {
         semesterYear,
       );
 
-      user.role = EUserRole.STUDENT;
-      user.student = student;
-      student.user = user;
+      wrap(student).assign({ user });
 
       em.persist([user, student]);
       await em.flush();
+      return user;
     });
+  }
 
-    return user!;
+  createTeacher(createUserDto: CreateUserDto): Promise<User> {
+    return this.em.transactional(async (em) => {
+      const { firstName, lastName, gender, email, password, teacherInput } = createUserDto;
+
+      if (!teacherInput) {
+        throw new BadRequestException("Teacher Information required");
+      }
+
+      const { majorSubject, highestEducationLevel, subjectsToTeach } = teacherInput;
+
+      const user = new User(firstName, lastName, gender, email, password, EUserRole.TEACHER);
+      const teacher = new Teacher(majorSubject, highestEducationLevel, subjectsToTeach);
+
+      wrap(teacher).assign({ user });
+
+      em.persist([user, teacher]);
+      await em.flush();
+
+      return user;
+    });
   }
 }

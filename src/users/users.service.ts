@@ -43,4 +43,19 @@ export class UsersService {
 
     return newUser;
   }
+
+  async createTeacher(createUserDto: CreateUserDto) {
+    const existingUser = await this.usersRepository.findOne({ email: createUserDto.email });
+
+    if (existingUser) {
+      throw new BadRequestException("User already exists");
+    }
+
+    const newUser = this.usersRepository.createTeacher({
+      ...createUserDto,
+      password: await this.hashPassword(createUserDto.password),
+    });
+
+    return newUser;
+  }
 }
