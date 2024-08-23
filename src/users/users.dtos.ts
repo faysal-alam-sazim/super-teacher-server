@@ -46,6 +46,9 @@ export class CreateStudentDto {
 
 export class CreateTeacherDto {
   @IsString()
+  code!: string;
+
+  @IsString()
   majorSubject!: string;
 
   @IsEnum(EHighestEducationLevel)
