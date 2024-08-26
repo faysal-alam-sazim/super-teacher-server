@@ -2,12 +2,25 @@ import { Entity, EntityRepositoryType, OneToOne, PrimaryKey, Property, Rel } fro
 
 import { TeachersRepository } from "@/teachers/teachers.repository";
 
+import { EHighestEducationLevel } from "../enums/highestEducationLevel.enum";
 import { CustomBaseEntity } from "./custom-base.entity";
 import { User } from "./users.entity";
 
 @Entity({ tableName: "teachers", repository: () => TeachersRepository })
 export class Teacher extends CustomBaseEntity {
   [EntityRepositoryType]?: TeachersRepository;
+
+  constructor(
+    majorSubject: string,
+    highestEducationLevel: EHighestEducationLevel,
+    subjectsToTeach: Array<string>,
+  ) {
+    super();
+
+    this.majorSubject = majorSubject;
+    this.highestEducationLevel = highestEducationLevel;
+    this.subjectsToTeach = subjectsToTeach;
+  }
 
   @PrimaryKey({ autoincrement: true })
   id!: number;

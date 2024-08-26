@@ -19,4 +19,10 @@ export class UsersController {
     const newUser = await this.usersService.createStudent(createUserDto);
     return this.usersSerializer.serialize(newUser);
   }
+
+  @Post("teacher")
+  async registerTeacher(@Body() createUserDto: CreateUserDto) {
+    const newUser = await this.usersService.createTeacher(createUserDto);
+    return this.usersSerializer.serialize(newUser);
+  }
 }
