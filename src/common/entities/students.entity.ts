@@ -20,6 +20,28 @@ import { User } from "./users.entity";
 export class Student extends CustomBaseEntity {
   [EntityRepositoryType]?: StudentsRepository;
 
+  constructor(
+    address: string,
+    phoneNumber: string,
+    educationLevel: EStudentEducationLevel,
+    medium: EMedium,
+    className: string,
+    degree: EDegree,
+    degreeName: string,
+    semesterYear: string,
+  ) {
+    super();
+
+    this.address = address;
+    this.phoneNumber = phoneNumber;
+    this.educationLevel = educationLevel;
+    this.medium = medium || null;
+    this.class = className || null;
+    this.degree = degree || null;
+    this.degreeName = degreeName || null;
+    this.semesterYear = semesterYear || null;
+  }
+
   @PrimaryKey({ autoincrement: true })
   id!: number;
 
@@ -35,11 +57,11 @@ export class Student extends CustomBaseEntity {
   @Enum(() => EMedium)
   medium!: EMedium | null;
 
-  @Property({ nullable: true })
-  class!: string | null;
-
   @Enum(() => EDegree)
   degree!: EDegree | null;
+
+  @Property({ nullable: true })
+  class!: string | null;
 
   @Property({ nullable: true })
   degreeName!: string | null;

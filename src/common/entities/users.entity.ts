@@ -23,6 +23,23 @@ import { Teacher } from "./teachers.entity";
 export class User extends CustomBaseEntity {
   [EntityRepositoryType]?: UsersRepository;
 
+  constructor(
+    firstName: string,
+    lastName: string,
+    gender: EUserGender,
+    email: string,
+    password: string,
+  ) {
+    super();
+
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.gender = gender;
+
+    this.email = email;
+    this.password = password;
+  }
+
   @PrimaryKey({ autoincrement: true })
   id!: number;
 
