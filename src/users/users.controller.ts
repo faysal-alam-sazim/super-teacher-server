@@ -1,5 +1,6 @@
-import { Body, Controller, Post, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Post, UseGuards, UseInterceptors } from "@nestjs/common";
 
+import { UniqueCodeGuard } from "@/auth/guards/unique-code.guard";
 import { ResponseTransformInterceptor } from "@/common/interceptors/response-transform.interceptor";
 
 import { CreateUserDto } from "./users.dtos";
@@ -20,6 +21,7 @@ export class UsersController {
     return this.usersSerializer.serialize(newUser);
   }
 
+  @UseGuards(UniqueCodeGuard)
   @Post("teacher")
   async registerTeacher(@Body() createUserDto: CreateUserDto) {
     const newUser = await this.usersService.createTeacher(createUserDto);
