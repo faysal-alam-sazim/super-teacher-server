@@ -48,7 +48,7 @@ export class UsersService {
     const existingUser = await this.usersRepository.findOne({ email: createUserDto.email });
 
     if (existingUser) {
-      throw new BadRequestException("User already exists");
+      throw new BadRequestException("Email with a code already exists");
     }
 
     const newUser = this.usersRepository.createTeacher({
