@@ -1,5 +1,8 @@
-import { Body, Controller, Post, UseGuards, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Get, Post, UseGuards, UseInterceptors } from "@nestjs/common";
 
+import { ITokenizedUser } from "@/auth/auth.interfaces";
+import { CurrentUser } from "@/auth/decorators/current-user.decorator";
+import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
 import { UniqueCodeGuard } from "@/auth/guards/unique-code.guard";
 import { ResponseTransformInterceptor } from "@/common/interceptors/response-transform.interceptor";
 
@@ -26,5 +29,11 @@ export class UsersController {
   async registerTeacher(@Body() createUserDto: CreateUserDto) {
     const newUser = await this.usersService.createTeacher(createUserDto);
     return this.usersSerializer.serialize(newUser);
+  }
+
+  @Get("me")
+  @UseGuards(JwtAuthGuard)
+  me(@CurrentUser() user: ITokenizedUser) {
+    return user;
   }
 }
