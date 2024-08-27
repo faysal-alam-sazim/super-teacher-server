@@ -9,5 +9,5 @@ export interface ITokenizedUser extends Omit<IJwtPayload, "sub"> {
   id: number;
   email: string;
   claim: EUserRole;
-  userProfileId: number;
+  firstName: string;
 }

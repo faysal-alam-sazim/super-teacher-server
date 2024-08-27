@@ -5,7 +5,7 @@ export function makeTokenizedUser(user: User): ITokenizedUser {
   return {
     id: user.id,
     claim: user.role,
+    firstName: user.firstName,
     email: user.email,
-    userProfileId: user.student.id || user.teacher.id,
   };
 }
