@@ -18,14 +18,14 @@ export class UsersController {
     private readonly usersSerializer: UsersSerializer,
   ) {}
 
-  @Post("student")
+  @Post("signup/student")
   async registerStudent(@Body() createUserDto: CreateUserDto) {
     const newUser = await this.usersService.createStudent(createUserDto);
     return this.usersSerializer.serialize(newUser);
   }
 
   @UseGuards(UniqueCodeGuard)
-  @Post("teacher")
+  @Post("signup/teacher")
   async registerTeacher(@Body() createUserDto: CreateUserDto) {
     const newUser = await this.usersService.createTeacher(createUserDto);
     return this.usersSerializer.serialize(newUser);
