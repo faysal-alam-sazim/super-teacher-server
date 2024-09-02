@@ -47,7 +47,6 @@ export class GenerateUniqueCodeCommand extends CommandRunner {
       this.logger.log(`Unique code generated for email: ${email}`);
     } catch (UniqueConstraintViolationException) {
       this.logger.error("User already exists");
-
     }
   }
 

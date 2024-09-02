@@ -94,6 +94,6 @@ export class CreateUserDto {
 export class TokenizedUser implements ITokenizedUser {
   id!: number;
   claim!: EUserRole;
-  userProfileId!: number;
+  firstName!: string;
   email!: string;
 }
