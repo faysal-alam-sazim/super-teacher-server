@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 
-import { EntityManager } from "@mikro-orm/postgresql";
+import { EntityManager } from "@mikro-orm/core";
 
 import { UniqueCodeRepository } from "@/unique-code/unique-code.repository";
 
