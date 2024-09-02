@@ -34,6 +34,7 @@ import { UsersModule } from "./users/users.module";
     StudentsModule,
     TeachersModule,
     UniqueCodeModule,
+    ClassroomsModule,
   ],
   controllers: [],
   providers: [Logger, AuthService],
