@@ -8,7 +8,6 @@ import { ARGON2_OPTIONS } from "@/common/config/argon2.config";
 import { EUserRole } from "@/common/enums/roles.enum";
 
 import { CreateUserDto } from "./users.dtos";
-import { IStudentInfo } from "./users.interfaces";
 import { UsersRepository } from "./users.repository";
 
 @Injectable()

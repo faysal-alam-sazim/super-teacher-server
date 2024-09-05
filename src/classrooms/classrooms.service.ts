@@ -5,6 +5,7 @@ import { EntityManager } from "@mikro-orm/postgresql";
 import { ClassroomsStudentsRepository } from "@/classrooms-students/classrooms-students.repository";
 import { Classroom } from "@/common/entities/classrooms.entity";
 import { EUserRole } from "@/common/enums/roles.enum";
+import { MailService } from "@/mail/mail.service";
 import { StudentsRepository } from "@/students/students.repository";
 import { UsersRepository } from "@/users/users.repository";
 
@@ -18,11 +19,15 @@ export class ClassroomsService {
     private readonly usersRepository: UsersRepository,
     private readonly studentsRepository: StudentsRepository,
     private readonly classroomsStudentsRepository: ClassroomsStudentsRepository,
+    private readonly mailService: MailService,
     private readonly em: EntityManager,
   ) {}
 
   async getClassroomById(id: number) {
-    const classroom = await this.classroomsRepository.findOneOrFail(id);
+    const classroom = await this.classroomsRepository.findOneOrFail(id, {
+      populate: ["teacher.user"],
+    });
+
     return classroom;
   }
 
@@ -61,9 +66,12 @@ export class ClassroomsService {
   async addStudent(enrollStudentDto: EnrollStudentDto) {
     const { studentId, classroomId } = enrollStudentDto;
 
-    await this.studentsRepository.findOneOrFail({ id: studentId });
+    const student = await this.studentsRepository.findOneOrFail(
+      { id: studentId },
+      { populate: ["user"] },
+    );
 
-    await this.classroomsRepository.findOneOrFail({ id: classroomId });
+    const classroom = await this.classroomsRepository.findOneOrFail({ id: classroomId });
 
     const classroomStudent = this.classroomsStudentsRepository.create({
       studentId,
@@ -71,6 +79,12 @@ export class ClassroomsService {
     });
 
     await this.em.persistAndFlush(classroomStudent);
+
+    await this.mailService.sendMail(
+      student.user.email,
+      "Confirmation of Enrollment",
+      `Hello ${student.user.firstName}, you're successfully enrolled to class ${classroom.title}!`,
+    );
 
     return classroomStudent;
   }
