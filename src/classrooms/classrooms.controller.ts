@@ -31,6 +31,11 @@ export class ClassroomsController {
     private readonly classroomsSerializer: ClassroomsSerializer,
   ) {}
 
+  @Get(":id")
+  getClassroom(@Param("id", ParseIntPipe) id: number) {
+    return this.classroomsService.getClassroomById(id);
+  }
+
   @Get()
   getClassrooms(@CurrentUser() user: ITokenizedUser) {
     return this.classroomsService.getClassrooms(user.id, user.claim);

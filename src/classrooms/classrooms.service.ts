@@ -21,6 +21,11 @@ export class ClassroomsService {
     private readonly em: EntityManager,
   ) {}
 
+  async getClassroomById(id: number) {
+    const classroom = await this.classroomsRepository.findOneOrFail(id);
+    return classroom;
+  }
+
   async getClassrooms(userId: number, role: EUserRole) {
     let classrooms: Classroom[] = [];
 
