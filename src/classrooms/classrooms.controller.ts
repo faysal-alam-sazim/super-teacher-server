@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Post, UseGuards } from "@nestjs/common";
 
 import { ITokenizedUser } from "@/auth/auth.interfaces";
 import { CurrentUser } from "@/auth/decorators/current-user.decorator";
@@ -14,6 +14,11 @@ import { ClassroomsService } from "./classrooms.service";
 @Controller("classrooms")
 export class ClassroomsController {
   constructor(private readonly classroomsService: ClassroomsService) {}
+
+  @Get()
+  getClassrooms(@CurrentUser() user: ITokenizedUser) {
+    return this.classroomsService.getClassrooms(user.id, user.claim);
+  }
 
   @Post()
   @UseGuards(RolesGuard)
