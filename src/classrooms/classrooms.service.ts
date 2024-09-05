@@ -87,4 +87,16 @@ export class ClassroomsService {
 
     await this.em.removeAndFlush(classroomStudent);
   }
+  async getClassroomStudents(id: number) {
+    const enrolledStudents = await this.classroomsStudentsRepository.find({ classroomId: id });
+
+    const studentIds = enrolledStudents.map((enrollment) => enrollment.studentId.id);
+
+    const students = await this.studentsRepository.find(
+      { id: { $in: studentIds } },
+      { populate: ["user"] },
+    );
+
+    return students;
+  }
 }

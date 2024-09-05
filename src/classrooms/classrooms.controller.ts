@@ -1,4 +1,14 @@
-import { Body, Controller, Delete, Get, Post, UseGuards, UseInterceptors } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  UseGuards,
+  UseInterceptors,
+} from "@nestjs/common";
 
 import { ITokenizedUser } from "@/auth/auth.interfaces";
 import { CurrentUser } from "@/auth/decorators/current-user.decorator";
@@ -9,13 +19,17 @@ import { EUserRole } from "@/common/enums/roles.enum";
 import { ResponseTransformInterceptor } from "@/common/interceptors/response-transform.interceptor";
 
 import { CreateClassroomDto, EnrollStudentDto } from "./classrooms.dto";
+import { ClassroomsSerializer } from "./classrooms.serializer";
 import { ClassroomsService } from "./classrooms.service";
 
 @UseInterceptors(ResponseTransformInterceptor)
 @UseGuards(JwtAuthGuard)
 @Controller("classrooms")
 export class ClassroomsController {
-  constructor(private readonly classroomsService: ClassroomsService) {}
+  constructor(
+    private readonly classroomsService: ClassroomsService,
+    private readonly classroomsSerializer: ClassroomsSerializer,
+  ) {}
 
   @Get()
   getClassrooms(@CurrentUser() user: ITokenizedUser) {
@@ -44,5 +58,12 @@ export class ClassroomsController {
     @Body() deleteEnrollDto: EnrollStudentDto,
   ) {
     return this.classroomsService.removeStudentFromClassroom(user.id, deleteEnrollDto);
+  }
+
+  @Get(":id/students")
+  async getClassroomStudents(@Param("id", ParseIntPipe) id: number) {
+    const students = await this.classroomsService.getClassroomStudents(id);
+
+    return this.classroomsSerializer.serializeMany(students);
   }
 }
