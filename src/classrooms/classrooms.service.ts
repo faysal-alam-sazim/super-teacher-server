@@ -3,6 +3,7 @@ import { Injectable } from "@nestjs/common";
 import { EntityManager } from "@mikro-orm/postgresql";
 
 import { ClassroomsStudentsRepository } from "@/classrooms-students/classrooms-students.repository";
+import { Classroom } from "@/common/entities/classrooms.entity";
 import { EUserRole } from "@/common/enums/roles.enum";
 import { StudentsRepository } from "@/students/students.repository";
 import { UsersRepository } from "@/users/users.repository";
@@ -21,14 +22,22 @@ export class ClassroomsService {
   ) {}
 
   async getClassrooms(userId: number, role: EUserRole) {
+    let classrooms: Classroom[] = [];
+
     const user = await this.usersRepository.findOneOrFail({ id: userId });
 
     if (role === EUserRole.TEACHER) {
-      const classrooms = await this.classroomsRepository.find({ teacher: user.teacher });
-      return classrooms;
+      classrooms = await this.classroomsRepository.find({ teacher: user.teacher });
+    } else {
+      const classroomStudents = await this.classroomsStudentsRepository.find({
+        studentId: user.student.id,
+      });
+
+      const classroomIds = classroomStudents.map((classroom) => classroom.classroomId.id);
+      classrooms = await this.classroomsRepository.find({ id: { $in: classroomIds } });
     }
-    // return student's enrolled classrooms
-    return [];
+
+    return classrooms;
   }
 
   async createClassroom(classroomDto: CreateClassroomDto, userId: number) {
