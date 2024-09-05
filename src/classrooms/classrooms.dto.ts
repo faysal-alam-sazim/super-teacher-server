@@ -1,5 +1,5 @@
 import { Type } from "class-transformer";
-import { IsArray, IsDate, IsOptional, IsString } from "class-validator";
+import { IsArray, IsDate, IsNumber, IsOptional, IsString } from "class-validator";
 
 export class CreateClassroomDto {
   @IsString()
@@ -18,4 +18,12 @@ export class CreateClassroomDto {
   @IsOptional()
   @IsString()
   meetLink?: string;
+}
+
+export class EnrollStudentDto {
+  @IsNumber()
+  studentId!: number;
+
+  @IsNumber()
+  classroomId!: number;
 }
