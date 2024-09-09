@@ -1666,6 +1666,15 @@
     knex "3.1.0"
     sqlstring "2.3.3"
 
+"@mikro-orm/knex@6.3.8":
+  version "6.3.8"
+  resolved "https://registry.yarnpkg.com/@mikro-orm/knex/-/knex-6.3.8.tgz#7fcc8208d95131fef9b1c438dfaa2aadf66af0aa"
+  integrity sha512-cUaz5hVuyFbSDt5gQMV0sZPozou5KfRC/43xMoJ5+S4GjQgZEbHMON3Xouqti50ARCFlcq5DEC7qQaHC4atHmA==
+  dependencies:
+    fs-extra "11.2.0"
+    knex "3.1.0"
+    sqlstring "2.3.3"
+
 "@mikro-orm/migrations@~6.2.0":
   version "6.2.9"
   resolved "https://registry.yarnpkg.com/@mikro-orm/migrations/-/migrations-6.2.9.tgz#c88715510022e377549883c6bcc29eae4d6910cb"
@@ -1680,13 +1689,13 @@
   resolved "https://registry.yarnpkg.com/@mikro-orm/nestjs/-/nestjs-5.2.3.tgz#204ef21781fce6b6e2423019bad515186228064d"
   integrity sha512-JMxaXrNXlo6j59D3LWMC1tEC1a5JanCtqdfv91JUH0sfVZh97SsjQ9K794BY3JWIUKSFyQwpnLxYZ0Ash/BlPA==
 
-"@mikro-orm/postgresql@~6.2.0":
-  version "6.2.9"
-  resolved "https://registry.yarnpkg.com/@mikro-orm/postgresql/-/postgresql-6.2.9.tgz#480322affb69482204d7170a0865c53936185c30"
-  integrity sha512-CRW5QPvsQhlhRZbx9SsgLrdC7LxCSbz+Pm5rAA8S1SAZG8qJ1WxMovHF61PFZj/7rydnb9fSh4nVwfutOyYwWg==
+"@mikro-orm/postgresql@~6.3.8":
+  version "6.3.8"
+  resolved "https://registry.yarnpkg.com/@mikro-orm/postgresql/-/postgresql-6.3.8.tgz#3450fd09e0a68a6fc680739e31d1e208b96c1570"
+  integrity sha512-9Ce3ddKQAMBMHkE1ofE++r8Tkq9YB7yK0my6EQlD3BM2wCSWq/Uj/67Ru7x+JTFiwcr9+sGEXwSv2Tsx8Z0fyw==
   dependencies:
-    "@mikro-orm/knex" "6.2.9"
-    pg "8.11.5"
+    "@mikro-orm/knex" "6.3.8"
+    pg "8.12.0"
     postgres-array "3.0.2"
     postgres-date "2.1.0"
     postgres-interval "4.0.2"
@@ -7678,10 +7687,10 @@ pg-types@^4.0.1:
     postgres-interval "^3.0.0"
     postgres-range "^1.1.1"
 
-pg@8.11.5:
-  version "8.11.5"
-  resolved "https://registry.yarnpkg.com/pg/-/pg-8.11.5.tgz#e722b0a5f1ed92931c31758ebec3ddf878dd4128"
-  integrity sha512-jqgNHSKL5cbDjFlHyYsCXmQDrfIX/3RsNwYqpd4N0Kt8niLuNoRNH+aazv6cOd43gPh9Y4DjQCtb+X0MH0Hvnw==
+pg@8.12.0:
+  version "8.12.0"
+  resolved "https://registry.yarnpkg.com/pg/-/pg-8.12.0.tgz#9341724db571022490b657908f65aee8db91df79"
+  integrity sha512-A+LHUSnwnxrnL/tZ+OLfqR1SxLN3c/pgDztZ47Rpbsd4jUytsTtwQo/TLPRzPJMp/1pbhYVhH9cuSZLAajNfjQ==
   dependencies:
     pg-connection-string "^2.6.4"
     pg-pool "^3.6.2"
