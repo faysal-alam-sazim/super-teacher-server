@@ -8,11 +8,12 @@ import { Student } from "@/common/entities/students.entity";
 import { User } from "@/common/entities/users.entity";
 
 import { ClassroomsController } from "./classrooms.controller";
+import { ClassroomsSerializer } from "./classrooms.serializer";
 import { ClassroomsService } from "./classrooms.service";
 
 @Module({
   imports: [MikroOrmModule.forFeature([Classroom, User, ClassroomStudent, Student])],
   controllers: [ClassroomsController],
-  providers: [ClassroomsService],
+  providers: [ClassroomsService, ClassroomsSerializer],
 })
 export class ClassroomsModule {}
