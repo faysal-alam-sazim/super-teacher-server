@@ -23,7 +23,4 @@ export class CreateClassroomDto {
 export class EnrollStudentDto {
   @IsNumber()
   studentId!: number;
-
-  @IsNumber()
-  classroomId!: number;
 }
