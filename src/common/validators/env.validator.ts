@@ -39,6 +39,19 @@ class EnvironmentVariables implements IEnvironmentVariables {
   @IsNumber()
   @IsPositive()
   AWS_S3_PRESIGN_URL_EXPIRY_IN_MINUTES!: number;
+
+  @IsString()
+  MAIL_HOST!: string;
+
+  @IsNumber()
+  @IsPositive()
+  MAIL_PORT!: number;
+
+  @IsString()
+  MAIL_USER!: string;
+
+  @IsString()
+  MAIL_PASS!: string;
 }
 
 export function validate(config: Record<string, unknown>) {

@@ -11,6 +11,7 @@ import { AuthService } from "./auth/auth.service";
 import { ClassroomsModule } from "./classrooms/classrooms.module";
 import { AppLoggerMiddleware } from "./common/middleware/request-logger.middleware";
 import ormConfig from "./db/db.config";
+import { MailModule } from "./mail/mail.module";
 import { StudentsModule } from "./students/students.module";
 import { TeachersModule } from "./teachers/teachers.module";
 import { UniqueCodeModule } from "./unique-code/unique-code.module";
@@ -35,6 +36,7 @@ import { UsersModule } from "./users/users.module";
     TeachersModule,
     UniqueCodeModule,
     ClassroomsModule,
+    MailModule,
   ],
   controllers: [],
   providers: [Logger, AuthService],

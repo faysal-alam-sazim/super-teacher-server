@@ -32,8 +32,9 @@ export class ClassroomsController {
   ) {}
 
   @Get(":id")
-  getClassroom(@Param("id", ParseIntPipe) id: number) {
-    return this.classroomsService.getClassroomById(id);
+  async getClassroom(@Param("id", ParseIntPipe) id: number) {
+    const classroom = await this.classroomsService.getClassroomById(id);
+    return this.classroomsSerializer.serialize(classroom);
   }
 
   @Get()
