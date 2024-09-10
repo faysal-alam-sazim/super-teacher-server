@@ -9,6 +9,7 @@ import { UniqueCodeGuard } from "@/auth/guards/unique-code.guard";
 import { ResponseTransformInterceptor } from "@/common/interceptors/response-transform.interceptor";
 
 import { CreateUserDto } from "./users.dtos";
+import { UsersSerializer } from "./users.serializer";
 import { UsersService } from "./users.service";
 
 @UseInterceptors(ResponseTransformInterceptor)
@@ -17,6 +18,7 @@ export class UsersController {
   constructor(
     private readonly usersService: UsersService,
     private readonly authService: AuthService,
+    private readonly usersSerializer: UsersSerializer,
   ) {}
 
   @Post("signup/student")
@@ -48,5 +50,12 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   me(@CurrentUser() user: ITokenizedUser) {
     return user;
+  }
+
+  @Get("students")
+  async getAllStudents() {
+    const users = await this.usersService.getAllStudents();
+
+    return this.usersSerializer.serializeMany(users);
   }
 }

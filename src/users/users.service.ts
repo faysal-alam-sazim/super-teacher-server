@@ -5,6 +5,7 @@ import { EntityManager } from "@mikro-orm/postgresql";
 import * as argon2 from "argon2";
 
 import { ARGON2_OPTIONS } from "@/common/config/argon2.config";
+import { EUserRole } from "@/common/enums/roles.enum";
 
 import { CreateUserDto } from "./users.dtos";
 import { UsersRepository } from "./users.repository";
@@ -57,5 +58,14 @@ export class UsersService {
     });
 
     return newUser;
+  }
+
+  async getAllStudents() {
+    const users = await this.usersRepository.find(
+      { role: EUserRole.STUDENT },
+      { populate: ["student"] },
+    );
+
+    return users;
   }
 }
