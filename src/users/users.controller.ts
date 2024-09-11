@@ -20,23 +20,10 @@ export class UsersController {
     private readonly authService: AuthService,
     private readonly usersSerializer: UsersSerializer,
   ) {}
-
-  @Post("signup/student")
-  async registerStudent(@Body() createUserDto: CreateUserDto) {
-    const newUser = await this.usersService.createStudent(createUserDto);
-
-    const accessToken = await this.authService.createAccessToken(newUser);
-
-    return {
-      accessToken,
-      user: makeTokenizedUser(newUser),
-    };
-  }
-
   @UseGuards(UniqueCodeGuard)
-  @Post("signup/teacher")
-  async registerTeacher(@Body() createUserDto: CreateUserDto) {
-    const newUser = await this.usersService.createTeacher(createUserDto);
+  @Post("signup")
+  async registerUser(@Body() createUserDto: CreateUserDto) {
+    const newUser = await this.usersService.createUser(createUserDto);
 
     const accessToken = await this.authService.createAccessToken(newUser);
 
