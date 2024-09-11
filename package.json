@@ -39,7 +39,7 @@
     "test:debug": "dotenv -e ./.env.test.local -- node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "dotenv -e ./.env.test.local -- jest --config ./test/jest-e2e.json",
     "generate-code": "dotenv -e ./.env.development.local -- ts-node -r tsconfig-paths/register src/command.ts generate-unique-code",
-    "reset-counter": "dotenv -e ./.env.development.local -- ts-node -r tsconfig-paths/register src/command.ts update-reset-counter"
+    "reset-code": "dotenv -e ./.env.development.local -- ts-node -r tsconfig-paths/register src/command.ts reset-code"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.485.0",

@@ -1,5 +1,6 @@
 import { EntityManager } from "@mikro-orm/core";
 
+import { randomBytes } from "crypto";
 import { Command, CommandRunner, Option } from "nest-commander";
 
 import { UniqueCodeRepository } from "@/unique-code/unique-code.repository";
@@ -7,8 +8,8 @@ import { UniqueCodeRepository } from "@/unique-code/unique-code.repository";
 import { ICommandData } from "./generate-unique-command.types";
 
 @Command({
-  name: "update-reset-counter",
-  description: "Updates the resetCounter value to 3 for a specific user",
+  name: "reset-code",
+  description: "Reset unique code for specific user",
 })
 export class UpdateResetCounterCommand extends CommandRunner {
   constructor(
@@ -28,23 +29,26 @@ export class UpdateResetCounterCommand extends CommandRunner {
 
     try {
       await this.em.transactional(async (em) => {
+        const code = randomBytes(3).toString("hex").toUpperCase();
+
         const uniqueCode = await this.uniqueCodeRepository.findOneOrFail({ email });
 
+        uniqueCode.code = code;
         uniqueCode.resetCounter = 3;
 
         await em.persistAndFlush(uniqueCode);
       });
     } catch (error) {
-      console.error("Error updating resetCounter:", error);
+      console.error("Error reseting code:", error);
       return;
     }
 
-    console.log(`Reset counter updated to 3 for email: ${email}`);
+    console.log(`Code Reset successful for email: ${email}`);
   }
 
   @Option({
     flags: "-e, --email <email>",
-    description: "Email for which the resetCounter should be updated",
+    description: "Email for which the code should be updated",
   })
   parseEmail(val: string): string {
     return val;
