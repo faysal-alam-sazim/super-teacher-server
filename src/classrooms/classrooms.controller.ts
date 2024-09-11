@@ -49,21 +49,26 @@ export class ClassroomsController {
     return this.classroomsService.createClassroom(classroomDto, user.id);
   }
 
-  @Post("students")
+  @Post(":id/students")
   @UseGuards(RolesGuard)
   @Roles(EUserRole.TEACHER)
-  addStudent(@Body() enrollStudentDto: EnrollStudentDto) {
-    return this.classroomsService.addStudent(enrollStudentDto);
+  addStudent(@Param("id", ParseIntPipe) id: number, @Body() enrollStudentDto: EnrollStudentDto) {
+    return this.classroomsService.addStudent(id, enrollStudentDto.studentId);
   }
 
-  @Delete("students")
+  @Delete(":id/students")
   @UseGuards(RolesGuard)
   @Roles(EUserRole.TEACHER)
   removeStudentFromClassroom(
+    @Param("id", ParseIntPipe) id: number,
     @CurrentUser() user: ITokenizedUser,
     @Body() deleteEnrollDto: EnrollStudentDto,
   ) {
-    return this.classroomsService.removeStudentFromClassroom(user.id, deleteEnrollDto);
+    return this.classroomsService.removeStudentFromClassroom(
+      user.id,
+      id,
+      deleteEnrollDto.studentId,
+    );
   }
 
   @Get(":id/students")

@@ -9,7 +9,7 @@ import { MailService } from "@/mail/mail.service";
 import { StudentsRepository } from "@/students/students.repository";
 import { UsersRepository } from "@/users/users.repository";
 
-import { CreateClassroomDto, EnrollStudentDto } from "./classrooms.dto";
+import { CreateClassroomDto } from "./classrooms.dto";
 import { ClassroomsRepository } from "./classrooms.repository";
 
 @Injectable()
@@ -63,9 +63,7 @@ export class ClassroomsService {
     return classroom;
   }
 
-  async addStudent(enrollStudentDto: EnrollStudentDto) {
-    const { studentId, classroomId } = enrollStudentDto;
-
+  async addStudent(classroomId: number, studentId: number) {
     const student = await this.studentsRepository.findOneOrFail(
       { id: studentId },
       { populate: ["user"] },
@@ -89,9 +87,7 @@ export class ClassroomsService {
     return classroomStudent;
   }
 
-  async removeStudentFromClassroom(userId: number, deleteEnrollDto: EnrollStudentDto) {
-    const { studentId, classroomId } = deleteEnrollDto;
-
+  async removeStudentFromClassroom(userId: number, classroomId: number, studentId: number) {
     const user = await this.usersRepository.findOneOrFail({ id: userId });
     const classroom = await this.classroomsRepository.findOneOrFail({ id: classroomId });
 
