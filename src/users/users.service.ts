@@ -30,32 +30,25 @@ export class UsersService {
     return user;
   }
 
-  async createStudent(createUserDto: CreateUserDto) {
+  async createUser(createUserDto: CreateUserDto) {
     const existingUser = await this.usersRepository.findOne({ email: createUserDto.email });
+    let newUser;
 
     if (existingUser) {
       throw new BadRequestException("User already exists");
     }
 
-    const newUser = this.usersRepository.createStudent({
-      ...createUserDto,
-      password: await this.hashPassword(createUserDto.password),
-    });
-
-    return newUser;
-  }
-
-  async createTeacher(createUserDto: CreateUserDto) {
-    const existingUser = await this.usersRepository.findOne({ email: createUserDto.email });
-
-    if (existingUser) {
-      throw new BadRequestException("Email with a code already exists");
+    if (createUserDto.role === EUserRole.TEACHER) {
+      newUser = this.usersRepository.createTeacher({
+        ...createUserDto,
+        password: await this.hashPassword(createUserDto.password),
+      });
+    } else {
+      newUser = this.usersRepository.createStudent({
+        ...createUserDto,
+        password: await this.hashPassword(createUserDto.password),
+      });
     }
-
-    const newUser = this.usersRepository.createTeacher({
-      ...createUserDto,
-      password: await this.hashPassword(createUserDto.password),
-    });
 
     return newUser;
   }
