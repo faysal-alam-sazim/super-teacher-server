@@ -11,6 +11,7 @@ import { AuthService } from "./auth/auth.service";
 import { ClassroomsModule } from "./classrooms/classrooms.module";
 import { AppLoggerMiddleware } from "./common/middleware/request-logger.middleware";
 import ormConfig from "./db/db.config";
+import { ExamsModule } from "./exams/exams.module";
 import { GlobalChatModule } from "./GlobalChat/GlobalChat.module";
 import { MailModule } from "./mail/mail.module";
 import { MessagesModule } from "./messages/messages.module";
@@ -41,6 +42,7 @@ import { UsersModule } from "./users/users.module";
     MailModule,
     MessagesModule,
     GlobalChatModule,
+    ExamsModule,
   ],
   controllers: [],
   providers: [Logger, AuthService],
