@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Param,
   ParseIntPipe,
   Post,
@@ -22,6 +23,11 @@ import { ExamsService } from "./exams.service";
 @Controller("classrooms")
 export class ExamsController {
   constructor(private readonly examsService: ExamsService) {}
+
+  @Get(":classroomId/exams")
+  getExams(@Param("classroomId", ParseIntPipe) classroomId: number) {
+    return this.examsService.getExams(classroomId);
+  }
 
   @Post(":classroomId/exams")
   @UseGuards(RolesGuard)
