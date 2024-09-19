@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -55,5 +56,15 @@ export class ResourcesController {
     @UploadedFile() file?: Express.Multer.File,
   ) {
     return this.resourcesService.updateResource(classroomId, resourceId, updateResourcesDto, file);
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles(EUserRole.TEACHER)
+  @Delete(":classroomId/resources/:resourceId")
+  deleteResource(
+    @Param("classroomId", ParseIntPipe) classroomId: number,
+    @Param("resourceId", ParseIntPipe) resourceId: number,
+  ) {
+    return this.resourcesService.deleteResource(classroomId, resourceId);
   }
 }
