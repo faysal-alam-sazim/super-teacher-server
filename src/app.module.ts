@@ -12,6 +12,7 @@ import { ClassroomsModule } from "./classrooms/classrooms.module";
 import { AppLoggerMiddleware } from "./common/middleware/request-logger.middleware";
 import ormConfig from "./db/db.config";
 import { MailModule } from "./mail/mail.module";
+import { MessagesModule } from "./messages/messages.module";
 import { StudentsModule } from "./students/students.module";
 import { TeachersModule } from "./teachers/teachers.module";
 import { UniqueCodeModule } from "./unique-code/unique-code.module";
@@ -37,6 +38,7 @@ import { UsersModule } from "./users/users.module";
     UniqueCodeModule,
     ClassroomsModule,
     MailModule,
+    MessagesModule,
   ],
   controllers: [],
   providers: [Logger, AuthService],
