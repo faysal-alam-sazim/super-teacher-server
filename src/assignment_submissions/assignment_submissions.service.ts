@@ -17,6 +17,22 @@ export class AssignmentSubmissionsService {
     private readonly classroomsRepository: ClassroomsRepository,
   ) {}
 
+  async getAssignmentSubmissions(classroomId: number, assignmentId: number) {
+    const classroom = await this.classroomsRepository.findOneOrFail({ id: classroomId });
+
+    const assignment = await this.assignmentsRepository.findOneOrFail({
+      id: assignmentId,
+      classroom: classroom.id,
+    });
+
+    const submissions = await this.assignmentSubmissionsRepository.find(
+      { assignment: assignment.id },
+      { populate: ["student.user"] },
+    );
+
+    return submissions;
+  }
+
   async addSubmission(
     classroomId: number,
     assignmentId: number,

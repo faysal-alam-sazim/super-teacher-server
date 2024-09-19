@@ -1,5 +1,6 @@
 import {
   Controller,
+  Get,
   Param,
   ParseIntPipe,
   Post,
@@ -17,13 +18,31 @@ import { RolesGuard } from "@/auth/guards/roles.guard";
 import { EUserRole } from "@/common/enums/roles.enum";
 import { ResponseTransformInterceptor } from "@/common/interceptors/response-transform.interceptor";
 
+import { AssignmentSubmissionSerializer } from "./assignment_submissions.serializer";
 import { AssignmentSubmissionsService } from "./assignment_submissions.service";
 
 @UseInterceptors(ResponseTransformInterceptor)
 @UseGuards(JwtAuthGuard)
 @Controller("classrooms/:classroomId/assignments")
 export class AssignmentSubmissionsController {
-  constructor(private readonly assignmentSubmissionsService: AssignmentSubmissionsService) {}
+  constructor(
+    private readonly assignmentSubmissionsService: AssignmentSubmissionsService,
+    private readonly assignmentSubmissionsSerializer: AssignmentSubmissionSerializer,
+  ) {}
+
+  @UseGuards(RolesGuard)
+  @Roles(EUserRole.TEACHER)
+  @Get(":assignmentId/submissions")
+  async getAssignmentSubmissions(
+    @Param("classroomId", ParseIntPipe) classroomId: number,
+    @Param("assignmentId", ParseIntPipe) assignmentId: number,
+  ) {
+    const submissions = await this.assignmentSubmissionsService.getAssignmentSubmissions(
+      classroomId,
+      assignmentId,
+    );
+    return this.assignmentSubmissionsSerializer.serializeMany(submissions);
+  }
 
   @UseGuards(RolesGuard)
   @Roles(EUserRole.STUDENT)
