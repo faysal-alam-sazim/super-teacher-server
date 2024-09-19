@@ -15,6 +15,7 @@ import { ExamsModule } from "./exams/exams.module";
 import { GlobalChatModule } from "./GlobalChat/GlobalChat.module";
 import { MailModule } from "./mail/mail.module";
 import { MessagesModule } from "./messages/messages.module";
+import { ResourcesModule } from "./resources/resources.module";
 import { StudentsModule } from "./students/students.module";
 import { TeachersModule } from "./teachers/teachers.module";
 import { UniqueCodeModule } from "./unique-code/unique-code.module";
@@ -43,6 +44,7 @@ import { UsersModule } from "./users/users.module";
     MessagesModule,
     GlobalChatModule,
     ExamsModule,
+    ResourcesModule,
   ],
   controllers: [],
   providers: [Logger, AuthService],

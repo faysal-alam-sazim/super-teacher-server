@@ -42,5 +42,6 @@ import { FileUploadsService } from "./file-uploads.service";
       inject: [ConfigService],
     },
   ],
+  exports: [FileUploadsService],
 })
 export class FileUploadsModule {}
