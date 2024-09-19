@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -49,5 +50,15 @@ export class ExamsController {
     @Body() updateExamDto: UpdateExamDto,
   ) {
     return this.examsService.updateExam(classroomId, examId, updateExamDto);
+  }
+
+  @Delete(":classroomId/exams/:examId")
+  @UseGuards(RolesGuard)
+  @Roles(EUserRole.TEACHER)
+  deleteExam(
+    @Param("classroomId", ParseIntPipe) classroomId: number,
+    @Param("examId", ParseIntPipe) examId: number,
+  ) {
+    return this.examsService.deleteExam(classroomId, examId);
   }
 }
