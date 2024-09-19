@@ -40,4 +40,12 @@ export class ExamsService {
 
     return this.examsRepository.updateOne(exam, updateExamDto);
   }
+
+  async deleteExam(classroomId: number, examId: number) {
+    const classroom = await this.classroomsRepository.findOneOrFail({ id: classroomId });
+
+    const exam = await this.examsRepository.findOneOrFail({ id: examId, classroom: classroom.id });
+
+    await this.em.removeAndFlush(exam);
+  }
 }
