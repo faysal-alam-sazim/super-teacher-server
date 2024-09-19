@@ -1,4 +1,4 @@
-import { IsString } from "class-validator";
+import { IsOptional, IsString } from "class-validator";
 
 export class AddResourcesDto {
   @IsString()
@@ -6,4 +6,18 @@ export class AddResourcesDto {
 
   @IsString()
   description!: string;
+}
+
+export class UpdateResourceDto {
+  @IsOptional()
+  @IsString()
+  title?: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsOptional()
+  @IsString()
+  fileUrl?: string;
 }
