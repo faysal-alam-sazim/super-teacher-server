@@ -1,6 +1,10 @@
 import { UnauthorizedException } from "@nestjs/common";
 
-export default function extractBearerAuthTokenFromHeaders(headers: Record<string, string>) {
+import { IncomingHttpHeaders } from "http";
+
+export default function extractBearerAuthTokenFromHeaders(
+  headers: Record<string, string> | IncomingHttpHeaders,
+) {
   const bearerToken = headers?.authorization?.split(" ");
 
   if (!bearerToken || bearerToken[0] !== "Bearer" || !bearerToken[1]) {
