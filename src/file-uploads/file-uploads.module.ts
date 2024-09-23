@@ -6,11 +6,9 @@ import { S3, S3Client } from "@aws-sdk/client-s3";
 import { S3Service } from "@/common/aws/s3-service/s3-service";
 import { isLocal } from "@/utils/env";
 
-import { FileUploadsController } from "./file-uploads.controller";
 import { FileUploadsService } from "./file-uploads.service";
 
 @Module({
-  controllers: [FileUploadsController],
   providers: [
     FileUploadsService,
     {
