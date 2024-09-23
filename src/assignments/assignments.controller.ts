@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   UploadedFile,
   UseGuards,
@@ -36,6 +37,11 @@ export class AssignmentsController {
     return this.assignmentsSerializer.serializeMany(assignments);
   }
 
+  @Get(":classroomId/assignments")
+  getAssignments(@Param("classroomId", ParseIntPipe) classroomId: number) {
+    return this.assignmentsService.getAssignments(classroomId);
+  }
+
   @UseGuards(RolesGuard)
   @Roles(EUserRole.TEACHER)
   @UseInterceptors(FileInterceptor("file"))
@@ -46,5 +52,23 @@ export class AssignmentsController {
     @UploadedFile() file: Express.Multer.File,
   ) {
     return this.assignmentsService.addAssignment(classroomId, addAssignmentDto, file);
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles(EUserRole.TEACHER)
+  @UseInterceptors(FileInterceptor("file"))
+  @Patch(":classroomId/assignments/:assignmentId")
+  updateAssignment(
+    @Param("classroomId", ParseIntPipe) classroomId: number,
+    @Param("assignmentId", ParseIntPipe) assignmentId: number,
+    @Body() updateAssignmentDto: UpdateAssignmentDto,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    return this.assignmentsService.updateAssignment(
+      classroomId,
+      assignmentId,
+      updateAssignmentDto,
+      file,
+    );
   }
 }

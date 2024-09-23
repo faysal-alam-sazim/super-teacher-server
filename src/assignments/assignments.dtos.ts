@@ -1,5 +1,5 @@
 import { Type } from "class-transformer";
-import { IsDate, IsString } from "class-validator";
+import { IsDate, IsOptional, IsString } from "class-validator";
 
 export class AddAssignmentDto {
   @IsString()
@@ -11,4 +11,23 @@ export class AddAssignmentDto {
   @IsDate()
   @Type(() => Date)
   dueDate!: Date;
+}
+
+export class UpdateAssignmentDto {
+  @IsOptional()
+  @IsString()
+  title?: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  dueDate?: Date;
+
+  @IsOptional()
+  @IsString()
+  fileUrl?: string;
 }
