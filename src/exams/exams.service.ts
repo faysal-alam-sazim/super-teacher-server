@@ -15,6 +15,14 @@ export class ExamsService {
     private readonly em: EntityManager,
   ) {}
 
+  async getExams(classroomId: number) {
+    const classroom = await this.classroomsRepository.findOneOrFail({ id: classroomId });
+
+    const exams = await this.examsRepository.find({ classroom: classroom.id });
+
+    return exams;
+  }
+
   async createExam(classroomId: number, createExamDto: CreateExamDto) {
     const classroom = await this.classroomsRepository.findOneOrFail({ id: classroomId });
 
