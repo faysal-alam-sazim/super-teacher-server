@@ -1,5 +1,5 @@
-import { Transform } from "class-transformer";
-import { IsDate, IsString } from "class-validator";
+import { Type } from "class-transformer";
+import { IsDate, IsNumber, IsString } from "class-validator";
 
 export class CreateExamDto {
   @IsString()
@@ -9,6 +9,21 @@ export class CreateExamDto {
   instruction!: string;
 
   @IsDate()
-  @Transform(({ value }) => new Date(value))
+  @Type(() => Date)
   date!: Date;
+}
+
+export class UpdateExamDto {
+  @IsNumber()
+  id?: number;
+
+  @IsString()
+  title?: string;
+
+  @IsString()
+  instruction?: string;
+
+  @IsDate()
+  @Type(() => Date)
+  date?: Date;
 }

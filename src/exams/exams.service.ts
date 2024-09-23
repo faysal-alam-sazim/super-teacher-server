@@ -4,7 +4,7 @@ import { EntityManager } from "@mikro-orm/postgresql";
 
 import { ClassroomsRepository } from "@/classrooms/classrooms.repository";
 
-import { CreateExamDto } from "./exams.dtos";
+import { CreateExamDto, UpdateExamDto } from "./exams.dtos";
 import { ExamsRepository } from "./exams.repository";
 
 @Injectable()
@@ -31,5 +31,13 @@ export class ExamsService {
     await this.em.persistAndFlush(exam);
 
     return exam;
+  }
+
+  async updateExam(classroomId: number, examId: number, updateExamDto: UpdateExamDto) {
+    const classroom = await this.classroomsRepository.findOneOrFail({ id: classroomId });
+
+    const exam = await this.examsRepository.findOneOrFail({ id: examId, classroom: classroom.id });
+
+    return this.examsRepository.updateOne(exam, updateExamDto);
   }
 }

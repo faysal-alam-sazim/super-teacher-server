@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   UseGuards,
   UseInterceptors,
@@ -15,7 +16,7 @@ import { RolesGuard } from "@/auth/guards/roles.guard";
 import { EUserRole } from "@/common/enums/roles.enum";
 import { ResponseTransformInterceptor } from "@/common/interceptors/response-transform.interceptor";
 
-import { CreateExamDto } from "./exams.dtos";
+import { CreateExamDto, UpdateExamDto } from "./exams.dtos";
 import { ExamsService } from "./exams.service";
 
 @UseInterceptors(ResponseTransformInterceptor)
@@ -37,5 +38,16 @@ export class ExamsController {
     @Body() createExamDto: CreateExamDto,
   ) {
     return this.examsService.createExam(classroomId, createExamDto);
+  }
+
+  @Patch(":classroomId/exams/:examId")
+  @UseGuards(RolesGuard)
+  @Roles(EUserRole.TEACHER)
+  updateExam(
+    @Param("classroomId", ParseIntPipe) classroomId: number,
+    @Param("examId", ParseIntPipe) examId: number,
+    @Body() updateExamDto: UpdateExamDto,
+  ) {
+    return this.examsService.updateExam(classroomId, examId, updateExamDto);
   }
 }
