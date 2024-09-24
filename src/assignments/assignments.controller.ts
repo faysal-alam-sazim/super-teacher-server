@@ -13,6 +13,8 @@ import {
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 
+import { ITokenizedUser } from "@/auth/auth.interfaces";
+import { CurrentUser } from "@/auth/decorators/current-user.decorator";
 import { Roles } from "@/auth/decorators/roles.decorator";
 import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
 import { RolesGuard } from "@/auth/guards/roles.guard";
@@ -36,6 +38,16 @@ export class AssignmentsController {
   async getAssignments(@Param("classroomId", ParseIntPipe) classroomId: number) {
     const assignments = await this.assignmentsService.getAssignments(classroomId);
     return this.assignmentsSerializer.serializeMany(assignments);
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles(EUserRole.STUDENT)
+  @Get(":classroomId/assignments/studentSubmissions")
+  getStudentsSubmission(
+    @Param("classroomId", ParseIntPipe) classroomId: number,
+    @CurrentUser() user: ITokenizedUser,
+  ) {
+    return this.assignmentsService.getStudentSubmittedAssignments(classroomId, user.id);
   }
 
   @UseGuards(RolesGuard)

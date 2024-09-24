@@ -1,7 +1,9 @@
 import { Injectable } from "@nestjs/common";
 
+import { AssignmentSubmissionsRepository } from "@/assignment_submissions/assignment_submissions.repository";
 import { ClassroomsRepository } from "@/classrooms/classrooms.repository";
 import { FileUploadsService } from "@/file-uploads/file-uploads.service";
+import { StudentsRepository } from "@/students/students.repository";
 
 import { AddAssignmentDto, UpdateAssignmentDto } from "./assignments.dtos";
 import { AssignmentsRepository } from "./assignments.repository";
@@ -12,6 +14,8 @@ export class AssignmentsService {
     private readonly assignmentsRepository: AssignmentsRepository,
     private readonly fileUploadsService: FileUploadsService,
     private readonly classroomsRepository: ClassroomsRepository,
+    private readonly studentsRepository: StudentsRepository,
+    private readonly assignmentSubmissionsRepository: AssignmentSubmissionsRepository,
   ) {}
 
   async getAssignments(classroomId: number) {
@@ -23,6 +27,22 @@ export class AssignmentsService {
     );
 
     return assignments;
+  }
+
+  async getStudentSubmittedAssignments(classroomId: number, userId: number) {
+    const assignments = await this.assignmentsRepository.find({ classroom: classroomId });
+
+    const student = await this.studentsRepository.findOneOrFail({ user: userId });
+
+    const submissions = await this.assignmentSubmissionsRepository.find({ student: student.id });
+
+    const submittedAssignmentIds = submissions.map((submission) => submission.assignment.id);
+
+    const submittedAssignments = assignments.filter((assignment) =>
+      submittedAssignmentIds.includes(assignment.id),
+    );
+
+    return submittedAssignments;
   }
 
   async addAssignment(
