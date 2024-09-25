@@ -1,4 +1,6 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
+
+import { randomUUID } from "crypto";
 
 import { S3Service } from "@/common/aws/s3-service/s3-service";
 
@@ -23,5 +25,24 @@ export class FileUploadsService {
       },
     });
     return response;
+  }
+
+  async handleFileUpload(file: Express.Multer.File) {
+    let fileUrl: string;
+    try {
+      const presignedUrlFile = new PresignedUrlFile();
+      presignedUrlFile.name = `${randomUUID()}-${new Date().getTime()}-${file.originalname}`;
+      presignedUrlFile.type = file.mimetype;
+
+      const { name, signedUrl } = await this.getPresignedUrl(presignedUrlFile);
+
+      await this.uploadToS3(signedUrl, file);
+
+      fileUrl = `${process.env.AWS_S3_ENDPOINT}/${process.env.AWS_S3_BUCKET_NAME}//${name}`;
+    } catch (error) {
+      throw new BadRequestException("Failed to upload file");
+    }
+
+    return fileUrl;
   }
 }
