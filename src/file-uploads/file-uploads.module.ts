@@ -41,6 +41,29 @@ import { FileUploadsService } from "./file-uploads.service";
       },
       inject: [ConfigService],
     },
+    {
+      provide: S3Client,
+      useFactory: (config: ConfigService) => {
+        const isLocalEnv = isLocal(config.get("NODE_ENV"));
+
+        const region = config.get("AWS_S3_REGION");
+        const endpoint = config.get("AWS_S3_ENDPOINT");
+
+        const credentials = isLocalEnv
+          ? undefined
+          : {
+              accessKeyId: config.get("DO_SPACES_ACCESS_KEY"),
+              secretAccessKey: config.get("DO_SPACES_SECRET_KEY"),
+            };
+        return new S3Client({
+          region,
+          endpoint,
+          forcePathStyle: isLocalEnv,
+          credentials,
+        });
+      },
+      inject: [ConfigService],
+    },
   ],
   exports: [FileUploadsService],
 })

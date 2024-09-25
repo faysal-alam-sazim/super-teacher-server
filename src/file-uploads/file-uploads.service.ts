@@ -1,5 +1,7 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 
+import { DeleteObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { randomUUID } from "crypto";
 
 import { S3Service } from "@/common/aws/s3-service/s3-service";
@@ -8,7 +10,11 @@ import { PresignedUrlFile } from "./file-uploads.dtos";
 
 @Injectable()
 export class FileUploadsService {
-  constructor(private readonly s3Service: S3Service) {}
+  constructor(
+    private readonly s3Service: S3Service,
+    private readonly configService: ConfigService,
+    private readonly s3Client: S3Client,
+  ) {}
 
   async getPresignedUrl(file: PresignedUrlFile) {
     const { name, type } = file;
@@ -44,5 +50,15 @@ export class FileUploadsService {
     }
 
     return fileUrl;
+  }
+
+  async deleteFromS3(key: string) {
+    const deleteParams = {
+      Bucket: await this.configService.get("AWS_S3_BUCKET_NAME"),
+      Key: key,
+    };
+    const command = new DeleteObjectCommand(deleteParams);
+    const response = await this.s3Client.send(command);
+    return response;
   }
 }

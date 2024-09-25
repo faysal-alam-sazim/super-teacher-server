@@ -3,6 +3,7 @@ import {
   Controller,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   UploadedFile,
   UseGuards,
@@ -16,7 +17,7 @@ import { RolesGuard } from "@/auth/guards/roles.guard";
 import { EUserRole } from "@/common/enums/roles.enum";
 import { ResponseTransformInterceptor } from "@/common/interceptors/response-transform.interceptor";
 
-import { AddResourcesDto } from "./resources.dtos";
+import { AddResourcesDto, UpdateResourceDto } from "./resources.dtos";
 import { ResourcesService } from "./resources.service";
 
 @UseInterceptors(ResponseTransformInterceptor)
@@ -35,5 +36,18 @@ export class ResourcesController {
     @UploadedFile() file: Express.Multer.File,
   ) {
     return this.resourcesService.addResources(classroomId, addResourcesDto, file);
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles(EUserRole.TEACHER)
+  @UseInterceptors(FileInterceptor("file"))
+  @Patch(":classroomId/resources/:resourceId")
+  updateResource(
+    @Param("classroomId", ParseIntPipe) classroomId: number,
+    @Param("resourceId", ParseIntPipe) resourceId: number,
+    @Body() updateResourcesDto: UpdateResourceDto,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    return this.resourcesService.updateResource(classroomId, resourceId, updateResourcesDto, file);
   }
 }
