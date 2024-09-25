@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Param,
   ParseIntPipe,
   Patch,
@@ -25,6 +26,11 @@ import { ResourcesService } from "./resources.service";
 @Controller("classrooms")
 export class ResourcesController {
   constructor(private readonly resourcesService: ResourcesService) {}
+
+  @Get(":classroomId/resources")
+  getResources(@Param("classroomId", ParseIntPipe) classroomId: number) {
+    return this.resourcesService.getResources(classroomId);
+  }
 
   @UseGuards(RolesGuard)
   @Roles(EUserRole.TEACHER)

@@ -14,6 +14,17 @@ export class ResourcesService {
     private readonly classroomsRepository: ClassroomsRepository,
   ) {}
 
+  async getResources(classroomId: number) {
+    const classroom = await this.classroomsRepository.findOneOrFail({ id: classroomId });
+
+    const resources = await this.resourcesRepository.find(
+      { classroom: classroom.id },
+      { orderBy: { createdAt: "ASC" } },
+    );
+
+    return resources;
+  }
+
   async addResources(
     classroomId: number,
     addResourcesDto: AddResourcesDto,
