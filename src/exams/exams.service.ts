@@ -3,6 +3,8 @@ import { Injectable } from "@nestjs/common";
 import { EntityManager } from "@mikro-orm/postgresql";
 
 import { ClassroomsRepository } from "@/classrooms/classrooms.repository";
+import { ClassroomsService } from "@/classrooms/classrooms.service";
+import { MailService } from "@/mail/mail.service";
 
 import { CreateExamDto, UpdateExamDto } from "./exams.dtos";
 import { ExamsRepository } from "./exams.repository";
@@ -13,6 +15,8 @@ export class ExamsService {
     private readonly examsRepository: ExamsRepository,
     private readonly classroomsRepository: ClassroomsRepository,
     private readonly em: EntityManager,
+    private readonly classroomsService: ClassroomsService,
+    private readonly mailService: MailService,
   ) {}
 
   async getExams(classroomId: number) {
@@ -29,6 +33,16 @@ export class ExamsService {
     const exam = this.examsRepository.create({ ...createExamDto, classroom: classroom.id });
 
     await this.em.persistAndFlush(exam);
+
+    const enrolledStudents = await this.classroomsService.getClassroomStudents(classroom.id);
+
+    enrolledStudents.map(async (student) => {
+      await this.mailService.sendMail(
+        student.user.email,
+        `New Exam in Classroom ${classroom.title}`,
+        `Hello ${student.user.firstName}, ${exam.title} is added in class ${classroom.title}`,
+      );
+    });
 
     return exam;
   }
