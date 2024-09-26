@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -18,7 +19,7 @@ import { RolesGuard } from "@/auth/guards/roles.guard";
 import { EUserRole } from "@/common/enums/roles.enum";
 import { ResponseTransformInterceptor } from "@/common/interceptors/response-transform.interceptor";
 
-import { AddAssignmentDto } from "./assignments.dtos";
+import { AddAssignmentDto, UpdateAssignmentDto } from "./assignments.dtos";
 import { AssignmentsSerializer } from "./assignments.serializer";
 import { AssignmentsService } from "./assignments.service";
 
@@ -35,11 +36,6 @@ export class AssignmentsController {
   async getAssignments(@Param("classroomId", ParseIntPipe) classroomId: number) {
     const assignments = await this.assignmentsService.getAssignments(classroomId);
     return this.assignmentsSerializer.serializeMany(assignments);
-  }
-
-  @Get(":classroomId/assignments")
-  getAssignments(@Param("classroomId", ParseIntPipe) classroomId: number) {
-    return this.assignmentsService.getAssignments(classroomId);
   }
 
   @UseGuards(RolesGuard)
@@ -70,5 +66,15 @@ export class AssignmentsController {
       updateAssignmentDto,
       file,
     );
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles(EUserRole.TEACHER)
+  @Delete(":classroomId/assignments/:assignmentId")
+  deleteAssignment(
+    @Param("classroomId", ParseIntPipe) classroomId: number,
+    @Param("assignmentId", ParseIntPipe) assignmentId: number,
+  ) {
+    return this.assignmentsService.deleteAssignment(classroomId, assignmentId);
   }
 }

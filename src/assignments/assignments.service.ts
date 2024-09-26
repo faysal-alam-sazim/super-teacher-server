@@ -65,4 +65,18 @@ export class AssignmentsService {
 
     return this.assignmentsRepository.updateOne(assignment, updateAssignmentDto);
   }
+
+  async deleteAssignment(classroomId: number, assignmentId: number) {
+    const classroom = await this.classroomsRepository.findOneOrFail({ id: classroomId });
+
+    const assignment = await this.assignmentsRepository.findOneOrFail({
+      id: assignmentId,
+      classroom: classroom.id,
+    });
+
+    const prevFileKey = assignment.fileUrl.split("project-dev-bucket/")[1];
+    await this.fileUploadsService.deleteFromS3(prevFileKey);
+
+    await this.assignmentsRepository.getEntityManager().removeAndFlush(assignment);
+  }
 }
