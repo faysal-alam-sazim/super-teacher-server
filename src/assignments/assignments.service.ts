@@ -1,7 +1,9 @@
 import { Injectable } from "@nestjs/common";
 
 import { ClassroomsRepository } from "@/classrooms/classrooms.repository";
+import { ClassroomsService } from "@/classrooms/classrooms.service";
 import { FileUploadsService } from "@/file-uploads/file-uploads.service";
+import { MailService } from "@/mail/mail.service";
 
 import { AddAssignmentDto, UpdateAssignmentDto } from "./assignments.dtos";
 import { AssignmentsRepository } from "./assignments.repository";
@@ -12,6 +14,8 @@ export class AssignmentsService {
     private readonly assignmentsRepository: AssignmentsRepository,
     private readonly fileUploadsService: FileUploadsService,
     private readonly classroomsRepository: ClassroomsRepository,
+    private readonly classroomsService: ClassroomsService,
+    private readonly mailService: MailService,
   ) {}
 
   async getAssignments(classroomId: number) {
@@ -42,6 +46,16 @@ export class AssignmentsService {
     });
 
     await this.assignmentsRepository.getEntityManager().persistAndFlush(assignment);
+
+    const enrolledStudents = await this.classroomsService.getClassroomStudents(classroom.id);
+
+    enrolledStudents.map(async (student) => {
+      await this.mailService.sendMail(
+        student.user.email,
+        `New Assignment Created in Class ${classroom.title}`,
+        `Hello ${student.user.firstName}, ${assignment.title} is created in class ${classroom.title}`,
+      );
+    });
   }
 
   async updateAssignment(
