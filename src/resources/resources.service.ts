@@ -65,4 +65,18 @@ export class ResourcesService {
 
     return this.resourcesRepository.updateOne(resource, updateResourcesDto);
   }
+
+  async deleteResource(classroomId: number, resourceId: number) {
+    const classroom = await this.classroomsRepository.findOneOrFail({ id: classroomId });
+
+    const resource = await this.resourcesRepository.findOneOrFail({
+      id: resourceId,
+      classroom: classroom.id,
+    });
+
+    const prevFileKey = resource.fileUrl.split("project-dev-bucket/")[1];
+    await this.fileUploadsService.deleteFromS3(prevFileKey);
+
+    await this.resourcesRepository.getEntityManager().removeAndFlush(resource);
+  }
 }

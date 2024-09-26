@@ -53,12 +53,16 @@ export class FileUploadsService {
   }
 
   async deleteFromS3(key: string) {
-    const deleteParams = {
-      Bucket: await this.configService.get("AWS_S3_BUCKET_NAME"),
-      Key: key,
-    };
-    const command = new DeleteObjectCommand(deleteParams);
-    const response = await this.s3Client.send(command);
-    return response;
+    try {
+      const deleteParams = {
+        Bucket: await this.configService.get("AWS_S3_BUCKET_NAME"),
+        Key: key,
+      };
+      const command = new DeleteObjectCommand(deleteParams);
+      const response = await this.s3Client.send(command);
+      return response;
+    } catch (error) {
+      throw new BadRequestException("Failed to remove from bucket");
+    }
   }
 }
