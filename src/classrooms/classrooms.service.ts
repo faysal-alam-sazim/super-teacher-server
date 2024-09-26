@@ -9,7 +9,7 @@ import { MailService } from "@/mail/mail.service";
 import { StudentsRepository } from "@/students/students.repository";
 import { UsersRepository } from "@/users/users.repository";
 
-import { CreateClassroomDto } from "./classrooms.dto";
+import { CreateClassroomDto, UpdateClassroomDto } from "./classrooms.dtos";
 import { ClassroomsRepository } from "./classrooms.repository";
 
 @Injectable()
@@ -113,5 +113,13 @@ export class ClassroomsService {
     );
 
     return students;
+  }
+
+  async updateClassroom(classroomId: number, updateClassroomDto: UpdateClassroomDto) {
+    const classroom = await this.classroomsRepository.findOneOrFail({
+      id: classroomId,
+    });
+
+    return this.classroomsRepository.updateOne(classroom, updateClassroomDto);
   }
 }
