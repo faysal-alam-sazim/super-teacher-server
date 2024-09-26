@@ -14,6 +14,17 @@ export class AssignmentsService {
     private readonly classroomsRepository: ClassroomsRepository,
   ) {}
 
+  async getAssignments(classroomId: number) {
+    const classroom = await this.classroomsRepository.findOneOrFail({ id: classroomId });
+
+    const assignments = await this.assignmentsRepository.find(
+      { classroom: classroom.id },
+      { orderBy: { createdAt: "ASC" } },
+    );
+
+    return assignments;
+  }
+
   async addAssignment(
     classroomId: number,
     addAssignmentDto: AddAssignmentDto,

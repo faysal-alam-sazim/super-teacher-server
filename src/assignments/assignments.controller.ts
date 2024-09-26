@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Param,
   ParseIntPipe,
   Post,
@@ -17,13 +18,23 @@ import { EUserRole } from "@/common/enums/roles.enum";
 import { ResponseTransformInterceptor } from "@/common/interceptors/response-transform.interceptor";
 
 import { AddAssignmentDto } from "./assignments.dtos";
+import { AssignmentsSerializer } from "./assignments.serializer";
 import { AssignmentsService } from "./assignments.service";
 
 @UseInterceptors(ResponseTransformInterceptor)
 @UseGuards(JwtAuthGuard)
 @Controller("classrooms")
 export class AssignmentsController {
-  constructor(private readonly assignmentsService: AssignmentsService) {}
+  constructor(
+    private readonly assignmentsService: AssignmentsService,
+    private readonly assignmentsSerializer: AssignmentsSerializer,
+  ) {}
+
+  @Get(":classroomId/assignments")
+  async getAssignments(@Param("classroomId", ParseIntPipe) classroomId: number) {
+    const assignments = await this.assignmentsService.getAssignments(classroomId);
+    return this.assignmentsSerializer.serializeMany(assignments);
+  }
 
   @UseGuards(RolesGuard)
   @Roles(EUserRole.TEACHER)

@@ -7,11 +7,12 @@ import { Classroom } from "@/common/entities/classrooms.entity";
 import { FileUploadsModule } from "@/file-uploads/file-uploads.module";
 
 import { AssignmentsController } from "./assignments.controller";
+import { AssignmentsSerializer } from "./assignments.serializer";
 import { AssignmentsService } from "./assignments.service";
 
 @Module({
   imports: [FileUploadsModule, MikroOrmModule.forFeature([Classroom, Assignment])],
   controllers: [AssignmentsController],
-  providers: [AssignmentsService],
+  providers: [AssignmentsService, AssignmentsSerializer],
 })
 export class AssignmentsModule {}
