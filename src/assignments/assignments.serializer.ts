@@ -8,10 +8,12 @@ export class AssignmentsSerializer extends AbstractBaseSerializer {
   protected serializeOneOptions: TSerializationOptions = {
     skipNull: true,
     forceObject: true,
+    populate: ["submissions.student"],
   };
 
   protected serializeManyOptions: TSerializationOptions = {
     skipNull: true,
     forceObject: true,
+    populate: ["submissions.student"],
   };
 }

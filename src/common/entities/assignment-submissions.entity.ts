@@ -26,7 +26,7 @@ export class AssignmentSubmission extends CustomBaseEntity {
   @Property({ fieldName: "file_url" })
   fileUrl!: string;
 
-  @ManyToOne(() => Assignment, { fieldName: "assignment_id" })
+  @ManyToOne(() => Assignment, { fieldName: "assignment_id", entity: () => Assignment })
   assignment!: Rel<Assignment>;
 
   @ManyToOne(() => Student, { fieldName: "student_id" })

@@ -1,7 +1,9 @@
 import {
+  Collection,
   Entity,
   EntityRepositoryType,
   ManyToOne,
+  OneToMany,
   PrimaryKey,
   Property,
   Rel,
@@ -9,6 +11,7 @@ import {
 
 import { AssignmentsRepository } from "@/assignments/assignments.repository";
 
+import { AssignmentSubmission } from "./assignment-submissions.entity";
 import { Classroom } from "./classrooms.entity";
 import { CustomBaseEntity } from "./custom-base.entity";
 
@@ -33,4 +36,7 @@ export class Assignment extends CustomBaseEntity {
 
   @ManyToOne(() => Classroom, { fieldName: "classroom_id" })
   classroom!: Rel<Classroom>;
+
+  @OneToMany(() => AssignmentSubmission, (submission) => submission.assignment)
+  submissions = new Collection<AssignmentSubmission>(this);
 }
