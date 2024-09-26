@@ -1,5 +1,5 @@
 import { Type } from "class-transformer";
-import { IsDate, IsNumber, IsString } from "class-validator";
+import { IsDate, IsOptional, IsString } from "class-validator";
 
 export class CreateExamDto {
   @IsString()
@@ -14,15 +14,15 @@ export class CreateExamDto {
 }
 
 export class UpdateExamDto {
-  @IsNumber()
-  id?: number;
-
+  @IsOptional()
   @IsString()
   title?: string;
 
+  @IsOptional()
   @IsString()
   instruction?: string;
 
+  @IsOptional()
   @IsDate()
   @Type(() => Date)
   date?: Date;
