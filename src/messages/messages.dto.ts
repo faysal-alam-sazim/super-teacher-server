@@ -1,3 +1,4 @@
+import { Type } from "class-transformer";
 import { IsNumber, IsOptional, IsString } from "class-validator";
 
 export class CreateMessageDto {
@@ -9,5 +10,6 @@ export class CreateMessageDto {
   attachmentUrl?: string;
 
   @IsNumber()
+  @Type(() => Number)
   sender!: number;
 }

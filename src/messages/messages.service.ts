@@ -5,6 +5,7 @@ import { EntityManager } from "@mikro-orm/postgresql";
 import { io, Socket } from "socket.io-client";
 
 import { ClassroomsRepository } from "@/classrooms/classrooms.repository";
+import { FileUploadsService } from "@/file-uploads/file-uploads.service";
 import { EGatewayIncomingEvent } from "@/GlobalChat/GlobalChat.enums";
 import { ISendMessagePayload } from "@/GlobalChat/GlobalChat.interfaces";
 import { UsersRepository } from "@/users/users.repository";
@@ -20,6 +21,7 @@ export class MessagesService {
     private readonly messagesRepository: MessagesRepository,
     private readonly usersRepository: UsersRepository,
     private readonly classroomsRepository: ClassroomsRepository,
+    private readonly fileUploadsService: FileUploadsService,
     private readonly em: EntityManager,
   ) {}
 
@@ -36,7 +38,12 @@ export class MessagesService {
       console.error("WebSocket connection error:", error);
     });
   }
-  async addMessage(createMessageDto: CreateMessageDto, classroomId: number, token: string) {
+  async addMessage(
+    createMessageDto: CreateMessageDto,
+    classroomId: number,
+    token: string,
+    file?: Express.Multer.File,
+  ) {
     if (!this.socket || !this.socket.connected) {
       this.initializeSocket(token);
     }
@@ -44,6 +51,10 @@ export class MessagesService {
     const classroom = await this.classroomsRepository.findOneOrFail({ id: classroomId });
 
     const sender = await this.usersRepository.findOneOrFail({ id: createMessageDto.sender });
+
+    if (file) {
+      createMessageDto.attachmentUrl = await this.fileUploadsService.handleFileUpload(file);
+    }
 
     const message = this.messagesRepository.create({
       ...createMessageDto,
