@@ -8,7 +8,8 @@ export class UsersSerializer extends AbstractBaseSerializer {
   protected serializeOneOptions: TSerializationOptions = {
     skipNull: true,
     forceObject: true,
-    exclude: ["password", "student.user"],
+    exclude: ["password", "student.user", "teacher.user"],
+    populate: ["student", "teacher"],
   };
 
   protected serializeManyOptions: TSerializationOptions = {

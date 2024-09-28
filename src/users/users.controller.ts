@@ -45,4 +45,12 @@ export class UsersController {
 
     return this.usersSerializer.serializeMany(users);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Get("profile")
+  async getUserProfile(@CurrentUser() user: ITokenizedUser) {
+    const userProfile = await this.usersService.getUserProfile(user);
+
+    return this.usersSerializer.serialize(userProfile);
+  }
 }
