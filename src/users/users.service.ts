@@ -4,6 +4,7 @@ import { EntityManager } from "@mikro-orm/postgresql";
 
 import * as argon2 from "argon2";
 
+import { ITokenizedUser } from "@/auth/auth.interfaces";
 import { ARGON2_OPTIONS } from "@/common/config/argon2.config";
 import { EUserRole } from "@/common/enums/roles.enum";
 
@@ -60,5 +61,14 @@ export class UsersService {
     );
 
     return users;
+  }
+
+  async getUserProfile(user: ITokenizedUser) {
+    const userProfile = await this.usersRepository.findOneOrFail(
+      { id: user.id },
+      { populate: [user.claim === EUserRole.STUDENT ? "student" : "teacher"] },
+    );
+
+    return userProfile;
   }
 }
