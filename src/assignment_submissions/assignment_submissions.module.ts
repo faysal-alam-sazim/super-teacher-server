@@ -9,6 +9,7 @@ import { Student } from "@/common/entities/students.entity";
 import { FileUploadsModule } from "@/file-uploads/file-uploads.module";
 
 import { AssignmentSubmissionsController } from "./assignment_submissions.controller";
+import { AssignmentSubmissionSerializer } from "./assignment_submissions.serializer";
 import { AssignmentSubmissionsService } from "./assignment_submissions.service";
 
 @Module({
@@ -17,6 +18,6 @@ import { AssignmentSubmissionsService } from "./assignment_submissions.service";
     MikroOrmModule.forFeature([AssignmentSubmission, Student, Assignment, Classroom]),
   ],
   controllers: [AssignmentSubmissionsController],
-  providers: [AssignmentSubmissionsService],
+  providers: [AssignmentSubmissionsService, AssignmentSubmissionSerializer],
 })
 export class AssignmentSubmissionsModule {}
