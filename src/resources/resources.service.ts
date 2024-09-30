@@ -1,7 +1,9 @@
 import { Injectable } from "@nestjs/common";
 
 import { ClassroomsRepository } from "@/classrooms/classrooms.repository";
+import { ClassroomsService } from "@/classrooms/classrooms.service";
 import { FileUploadsService } from "@/file-uploads/file-uploads.service";
+import { MailService } from "@/mail/mail.service";
 
 import { AddResourcesDto, UpdateResourceDto } from "./resources.dtos";
 import { ResourcesRepository } from "./resources.repository";
@@ -12,6 +14,8 @@ export class ResourcesService {
     private readonly resourcesRepository: ResourcesRepository,
     private readonly fileUploadsService: FileUploadsService,
     private readonly classroomsRepository: ClassroomsRepository,
+    private readonly classroomsService: ClassroomsService,
+    private readonly mailService: MailService,
   ) {}
 
   async getResources(classroomId: number) {
@@ -41,6 +45,16 @@ export class ResourcesService {
     });
 
     await this.resourcesRepository.getEntityManager().persistAndFlush(resource);
+
+    const enrolledStudents = await this.classroomsService.getClassroomStudents(classroom.id);
+
+    enrolledStudents.map(async (student) => {
+      await this.mailService.sendMail(
+        student.user.email,
+        `Resource Uploaded in Classroom ${classroom.title}`,
+        `Hello ${student.user.firstName}, ${resource.title} is uploaded in classroom ${classroom.title}`,
+      );
+    });
   }
 
   async updateResource(
