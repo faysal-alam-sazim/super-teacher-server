@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Get, Patch, Post, UseGuards, UseInterceptors } from "@nestjs/common";
 
 import { makeTokenizedUser } from "@/auth/auth.helpers";
 import { ITokenizedUser } from "@/auth/auth.interfaces";
@@ -8,7 +8,7 @@ import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
 import { UniqueCodeGuard } from "@/auth/guards/unique-code.guard";
 import { ResponseTransformInterceptor } from "@/common/interceptors/response-transform.interceptor";
 
-import { CreateUserDto } from "./users.dtos";
+import { CreateUserDto, UpdateUserDto } from "./users.dtos";
 import { UsersSerializer } from "./users.serializer";
 import { UsersService } from "./users.service";
 
@@ -52,5 +52,13 @@ export class UsersController {
     const userProfile = await this.usersService.getUserProfile(user);
 
     return this.usersSerializer.serialize(userProfile);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch("profile")
+  async updateUser(@CurrentUser() user: ITokenizedUser, @Body() updateUserDto: UpdateUserDto) {
+    const updatedUser = await this.usersService.updateUser(user.id, updateUserDto);
+
+    return makeTokenizedUser(updatedUser);
   }
 }
