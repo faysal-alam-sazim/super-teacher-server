@@ -19,7 +19,8 @@ export class AssignmentsService {
 
     const assignments = await this.assignmentsRepository.find(
       { classroom: classroom.id },
-      { orderBy: { createdAt: "ASC" } },
+
+      { orderBy: { createdAt: "ASC" }, populate: ["submissions.student"] },
     );
 
     return assignments;
