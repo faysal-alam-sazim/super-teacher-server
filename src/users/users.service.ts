@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, UnauthorizedException } from "@nestjs/common";
 
 import { EntityManager } from "@mikro-orm/postgresql";
 
@@ -6,14 +6,20 @@ import * as argon2 from "argon2";
 
 import { ITokenizedUser } from "@/auth/auth.interfaces";
 import { ARGON2_OPTIONS } from "@/common/config/argon2.config";
+import { User } from "@/common/entities/users.entity";
 import { EUserRole } from "@/common/enums/roles.enum";
+import { VerifyUsersRepository } from "@/verify-users/verify-users.repository";
 
-import { CreateUserDto, UpdateUserDto } from "./users.dtos";
+import { CreateUserDto, UpdateUserDto, UpdatePasswordDto } from "./users.dtos";
 import { UsersRepository } from "./users.repository";
 
 @Injectable()
 export class UsersService {
-  constructor(private entityManager: EntityManager, private usersRepository: UsersRepository) {}
+  constructor(
+    private entityManager: EntityManager,
+    private usersRepository: UsersRepository,
+    private readonly verifyUserRepository: VerifyUsersRepository,
+  ) {}
 
   private hashPassword(password: string) {
     return argon2.hash(password, ARGON2_OPTIONS);
@@ -98,5 +104,30 @@ export class UsersService {
     await this.entityManager.persistAndFlush(user);
 
     return user;
+  }
+
+  async isOtpVerified(user: User, otp: string) {
+    const verifyUser = await this.verifyUserRepository.findOneOrFail({
+      otp: otp,
+      user: user,
+    });
+
+    if (!verifyUser) {
+      return false;
+    }
+    return verifyUser.isChecked;
+  }
+
+  async updateUserPassword(updatePasswordDto: UpdatePasswordDto) {
+    const { email, newPassword, otp } = updatePasswordDto;
+
+    const user = await this.usersRepository.findOneOrFail({ email });
+
+    if (!this.isOtpVerified(user, otp)) {
+      throw new UnauthorizedException("OTP isn't verified");
+    }
+    user.password = await this.hashPassword(newPassword);
+
+    await this.usersRepository.getEntityManager().persistAndFlush(user);
   }
 }

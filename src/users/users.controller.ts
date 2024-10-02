@@ -8,7 +8,7 @@ import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
 import { UniqueCodeGuard } from "@/auth/guards/unique-code.guard";
 import { ResponseTransformInterceptor } from "@/common/interceptors/response-transform.interceptor";
 
-import { CreateUserDto, UpdateUserDto } from "./users.dtos";
+import { CreateUserDto, UpdateUserDto, UpdatePasswordDto } from "./users.dtos";
 import { UsersSerializer } from "./users.serializer";
 import { UsersService } from "./users.service";
 
@@ -60,5 +60,10 @@ export class UsersController {
     const updatedUser = await this.usersService.updateUser(user.id, updateUserDto);
 
     return makeTokenizedUser(updatedUser);
+  }
+
+  @Patch("update-password")
+  updateUserPassword(@Body() updatePasswordDto: UpdatePasswordDto) {
+    return this.usersService.updateUserPassword(updatePasswordDto);
   }
 }
