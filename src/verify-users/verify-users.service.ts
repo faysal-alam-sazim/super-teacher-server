@@ -45,4 +45,23 @@ export class VerifyUsersService {
       `Your OTP is ${otp}. It will expires after 5 minutes.`,
     );
   }
+
+  async verifyOtp(email: string, otp: string) {
+    const user = await this.usersRepository.findOneOrFail({ email: email });
+    const verifyUser = await this.verifyUsersRepository.findOneOrFail({ otp: otp, user: user });
+
+    if (!verifyUser) {
+      throw new BadRequestException("Otp didn't match. Please try again");
+    }
+
+    if (verifyUser.expiresAt < new Date()) {
+      throw new BadRequestException("Otp is expired. Please try again.");
+    }
+
+    verifyUser.isChecked = true;
+
+    await this.verifyUsersRepository.getEntityManager().persistAndFlush(verifyUser);
+
+    return verifyUser;
+  }
 }
