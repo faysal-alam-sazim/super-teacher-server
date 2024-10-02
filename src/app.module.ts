@@ -22,6 +22,7 @@ import { StudentsModule } from "./students/students.module";
 import { TeachersModule } from "./teachers/teachers.module";
 import { UniqueCodeModule } from "./unique-code/unique-code.module";
 import { UsersModule } from "./users/users.module";
+import { VerifyUsersModule } from "./verify-users/verify-users.module";
 
 @Module({
   imports: [
@@ -49,8 +50,8 @@ import { UsersModule } from "./users/users.module";
     ResourcesModule,
     AssignmentsModule,
     AssignmentSubmissionsModule,
+    VerifyUsersModule,
   ],
-  controllers: [],
   providers: [Logger, AuthService],
 })
 export class AppModule {
