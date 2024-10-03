@@ -8,7 +8,7 @@ import { ITokenizedUser } from "@/auth/auth.interfaces";
 import { ARGON2_OPTIONS } from "@/common/config/argon2.config";
 import { EUserRole } from "@/common/enums/roles.enum";
 
-import { CreateUserDto, UpdateUserDto } from "./users.dtos";
+import { CreateUserDto, ResetPasswordDto, UpdateUserDto } from "./users.dtos";
 import { UsersRepository } from "./users.repository";
 
 @Injectable()
@@ -98,5 +98,26 @@ export class UsersService {
     await this.entityManager.persistAndFlush(user);
 
     return user;
+  }
+
+  async resetPassword(userId: number, resetPasswordDto: ResetPasswordDto) {
+    const { oldPassword, newPassword } = resetPasswordDto;
+
+    try {
+      const user = await this.usersRepository.findOneOrFail({ id: userId });
+
+      const verified = await argon2.verify(user.password as string, oldPassword, ARGON2_OPTIONS);
+
+      if (verified) {
+        user.password = await this.hashPassword(newPassword);
+        await this.usersRepository.getEntityManager().persistAndFlush(user);
+
+        return user;
+      } else {
+        throw new BadRequestException("Old password didn't match!");
+      }
+    } catch (error) {
+      throw new BadRequestException(error);
+    }
   }
 }
