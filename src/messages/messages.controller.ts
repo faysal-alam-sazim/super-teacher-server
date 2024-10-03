@@ -6,9 +6,11 @@ import {
   ParseIntPipe,
   Post,
   Req,
+  UploadedFile,
   UseGuards,
   UseInterceptors,
 } from "@nestjs/common";
+import { FileInterceptor } from "@nestjs/platform-express";
 
 import { Request } from "express";
 
@@ -35,13 +37,15 @@ export class MessagesController {
     return this.messagesSerializer.serializeMany(messages);
   }
 
+  @UseInterceptors(FileInterceptor("file"))
   @Post(":id/messages")
   addMessage(
     @Param("id", ParseIntPipe) id: number,
     @Body() createMessageDto: CreateMessageDto,
     @Req() req: Request,
+    @UploadedFile() file?: Express.Multer.File,
   ) {
     const token = extractBearerAuthTokenFromHeaders(req.headers);
-    return this.messagesService.addMessage(createMessageDto, id, token);
+    return this.messagesService.addMessage(createMessageDto, id, token, file);
   }
 }
