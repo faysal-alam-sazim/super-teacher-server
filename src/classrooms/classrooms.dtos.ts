@@ -24,3 +24,26 @@ export class EnrollStudentDto {
   @IsNumber()
   studentId!: number;
 }
+
+export class UpdateClassroomDto {
+  @IsOptional()
+  @IsString()
+  title?: string;
+
+  @IsOptional()
+  @IsString()
+  subject?: string;
+
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  classTime?: Date;
+
+  @IsOptional()
+  @IsArray()
+  days?: Array<string>;
+
+  @IsOptional()
+  @IsString()
+  meetLink?: string;
+}

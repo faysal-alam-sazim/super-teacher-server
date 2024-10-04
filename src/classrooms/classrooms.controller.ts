@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   UseGuards,
   UseInterceptors,
@@ -13,12 +14,13 @@ import {
 import { ITokenizedUser } from "@/auth/auth.interfaces";
 import { CurrentUser } from "@/auth/decorators/current-user.decorator";
 import { Roles } from "@/auth/decorators/roles.decorator";
+import { ClassroomOwnershipGuard } from "@/auth/guards/classrooms-ownership.guard";
 import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
 import { RolesGuard } from "@/auth/guards/roles.guard";
 import { EUserRole } from "@/common/enums/roles.enum";
 import { ResponseTransformInterceptor } from "@/common/interceptors/response-transform.interceptor";
 
-import { CreateClassroomDto, EnrollStudentDto } from "./classrooms.dto";
+import { CreateClassroomDto, EnrollStudentDto, UpdateClassroomDto } from "./classrooms.dtos";
 import { ClassroomsSerializer } from "./classrooms.serializer";
 import { ClassroomsService } from "./classrooms.service";
 
@@ -76,5 +78,15 @@ export class ClassroomsController {
     const students = await this.classroomsService.getClassroomStudents(id);
 
     return this.classroomsSerializer.serializeMany(students);
+  }
+
+  @UseGuards(RolesGuard, ClassroomOwnershipGuard)
+  @Roles(EUserRole.TEACHER)
+  @Patch("/:classroomId")
+  updateClassroom(
+    @Param("classroomId", ParseIntPipe) classroomId: number,
+    @Body() updateClassroomDto: UpdateClassroomDto,
+  ) {
+    return this.classroomsService.updateClassroom(classroomId, updateClassroomDto);
   }
 }
