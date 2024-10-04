@@ -89,4 +89,11 @@ export class ClassroomsController {
   ) {
     return this.classroomsService.updateClassroom(classroomId, updateClassroomDto);
   }
+
+  @UseGuards(RolesGuard, ClassroomOwnershipGuard)
+  @Roles(EUserRole.TEACHER)
+  @Delete("/:classroomId")
+  deleteClassroom(@Param("classroomId", ParseIntPipe) classroomId: number) {
+    return this.classroomsService.deleteClassroom(classroomId);
+  }
 }

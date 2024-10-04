@@ -28,6 +28,6 @@ export class Resource extends CustomBaseEntity {
   @Property({ fieldName: "description" })
   description!: string;
 
-  @ManyToOne(() => Classroom, { fieldName: "classroom_id" })
+  @ManyToOne(() => Classroom, { fieldName: "classroom_id", deleteRule: "cascade" })
   classroom!: Rel<Classroom>;
 }

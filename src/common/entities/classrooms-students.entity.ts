@@ -13,7 +13,7 @@ export class ClassroomStudent extends CustomBaseEntity {
   @PrimaryKey()
   id!: number;
 
-  @ManyToOne(() => Classroom, { fieldName: "classroom_id" })
+  @ManyToOne(() => Classroom, { fieldName: "classroom_id", deleteRule: "cascade" })
   classroomId!: Rel<Classroom>;
 
   @ManyToOne(() => Student, { fieldName: "student_id" })

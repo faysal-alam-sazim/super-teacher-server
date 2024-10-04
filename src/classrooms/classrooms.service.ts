@@ -122,4 +122,12 @@ export class ClassroomsService {
 
     return this.classroomsRepository.updateOne(classroom, updateClassroomDto);
   }
+
+  async deleteClassroom(classroomId: number) {
+    const classroom = await this.classroomsRepository.findOneOrFail({
+      id: classroomId,
+    });
+
+    await this.classroomsRepository.getEntityManager().removeAndFlush(classroom);
+  }
 }
