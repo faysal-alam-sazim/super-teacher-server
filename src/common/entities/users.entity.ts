@@ -1,7 +1,9 @@
 import {
+  Collection,
   Entity,
   EntityRepositoryType,
   Enum,
+  OneToMany,
   OneToOne,
   PrimaryKey,
   Property,
@@ -15,6 +17,7 @@ import { EUserRole } from "../enums/roles.enum";
 import { CustomBaseEntity } from "./custom-base.entity";
 import { Student } from "./students.entity";
 import { Teacher } from "./teachers.entity";
+import { VerifyUsers } from "./verify-users.entity";
 
 @Entity({
   tableName: "users",
@@ -67,4 +70,7 @@ export class User extends CustomBaseEntity {
 
   @OneToOne(() => Teacher, { mappedBy: (teacher) => teacher.user })
   teacher!: Rel<Teacher>;
+
+  @OneToMany(() => VerifyUsers, (verifyUser) => verifyUser.user)
+  verifyUser = new Collection<VerifyUsers>(this);
 }
