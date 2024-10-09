@@ -175,3 +175,15 @@ export class UpdateUserDto {
   @Type(() => UpdateTeacherDto)
   teacherInput!: UpdateTeacherDto;
 }
+
+export class UpdatePasswordDto {
+  @IsString()
+  email!: string;
+
+  @IsString()
+  otp!: string;
+
+  @IsString()
+  @MinLength(6)
+  newPassword!: string;
+}
