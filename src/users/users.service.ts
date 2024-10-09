@@ -10,7 +10,7 @@ import { User } from "@/common/entities/users.entity";
 import { EUserRole } from "@/common/enums/roles.enum";
 import { VerifyUsersRepository } from "@/verify-users/verify-users.repository";
 
-import { CreateUserDto, UpdateUserDto, UpdatePasswordDto } from "./users.dtos";
+import { CreateUserDto, ResetPasswordDto, UpdateUserDto, UpdatePasswordDto } from "./users.dtos";
 import { UsersRepository } from "./users.repository";
 
 @Injectable()
@@ -129,5 +129,26 @@ export class UsersService {
     user.password = await this.hashPassword(newPassword);
 
     await this.usersRepository.getEntityManager().persistAndFlush(user);
+  }
+
+  async resetPassword(userId: number, resetPasswordDto: ResetPasswordDto) {
+    const { oldPassword, newPassword } = resetPasswordDto;
+
+    try {
+      const user = await this.usersRepository.findOneOrFail({ id: userId });
+
+      const verified = await argon2.verify(user.password as string, oldPassword, ARGON2_OPTIONS);
+
+      if (verified) {
+        user.password = await this.hashPassword(newPassword);
+        await this.usersRepository.getEntityManager().persistAndFlush(user);
+
+        return user;
+      } else {
+        throw new BadRequestException("Old password didn't match!");
+      }
+    } catch (error) {
+      throw new BadRequestException(error);
+    }
   }
 }
