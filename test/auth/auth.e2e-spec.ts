@@ -14,9 +14,14 @@ import { EUserRole } from "@/common/enums/roles.enum";
 import { bootstrapTestServer } from "../utils/bootstrap";
 import { truncateTables } from "../utils/db";
 import { createUniqueCodeInDb, getValuesWithoutUserInfo } from "../utils/helpers/auth.helpers";
+import { createUserInDb } from "../utils/helpers/users.helpers";
 import { THttpServer } from "../utils/types";
-import { MOCK_TEACHER_EMAIL, MOCK_TEACHER_UNIQUE_CODE } from "./auth.mock";
-
+import {
+  MOCK_AUTH_EMAIL,
+  MOCK_AUTH_PASS,
+  MOCK_TEACHER_EMAIL,
+  MOCK_TEACHER_UNIQUE_CODE,
+} from "./auth.mock";
 
 describe("AuthController (e2e)", () => {
   let app: INestApplication;
@@ -202,5 +207,31 @@ describe("AuthController (e2e)", () => {
       const userInfo = getValuesWithoutUserInfo();
       await request(httpServer).post("/auth/signup").send(userInfo).expect(HttpStatus.BAD_REQUEST);
     });
+  });
+
+  describe("POST /auth/login", () => {
+    beforeEach(async () => {
+      await createUserInDb(dbService);
+    });
+
+    it("should return 201 Created with proper credentials", () =>
+      request(httpServer)
+        .post("/auth/login")
+        .send({ email: MOCK_AUTH_EMAIL, password: MOCK_AUTH_PASS })
+        .expect(HttpStatus.CREATED)
+        .expect(({ body }) => {
+          expect(body.data.user.email).toEqual(MOCK_AUTH_EMAIL);
+          expect(body.data).toHaveProperty("accessToken");
+          expect(body.data.user.password).toBeUndefined();
+        }));
+
+    it("should return 401 Unauthorized with wrong credentials", () =>
+      request(httpServer)
+        .post("/auth/login")
+        .send({ email: MOCK_AUTH_EMAIL, password: "wrongpassword" })
+        .expect(HttpStatus.UNAUTHORIZED));
+
+    it("Without authentication params, gets back 401 Unauthenticated", () =>
+      request(httpServer).post("/auth/login").expect(HttpStatus.UNAUTHORIZED));
   });
 });
