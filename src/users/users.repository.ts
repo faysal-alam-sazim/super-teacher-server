@@ -2,12 +2,12 @@ import { BadRequestException, Injectable } from "@nestjs/common";
 
 import { EntityRepository, wrap } from "@mikro-orm/postgresql";
 
+import { CreateUserDto } from "@/auth/auth.dtos";
 import { Student } from "@/common/entities/students.entity";
 import { Teacher } from "@/common/entities/teachers.entity";
 import { EUserRole } from "@/common/enums/roles.enum";
 
 import { User } from "../common/entities/users.entity";
-import { CreateUserDto } from "./users.dtos";
 
 @Injectable()
 export class UsersRepository extends EntityRepository<User> {

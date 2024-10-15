@@ -2,7 +2,8 @@ import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from
 
 import { EUserRole } from "@/common/enums/roles.enum";
 import { UniqueCodeService } from "@/unique-code/unique-code.service";
-import { CreateUserDto } from "@/users/users.dtos";
+
+import { CreateUserDto } from "../auth.dtos";
 
 @Injectable()
 export class UniqueCodeGuard implements CanActivate {
