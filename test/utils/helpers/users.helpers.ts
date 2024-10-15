@@ -7,17 +7,24 @@ import { ARGON2_OPTIONS } from "@/common/config/argon2.config";
 import { MOCK_AUTH_EMAIL, MOCK_AUTH_PASS } from "../../auth/auth.mock";
 import { UserFactory } from "../factories/users.factory";
 
-export const createUserInDb = async (dbService: EntityManager<IDatabaseDriver<Connection>>) => {
+export const createUserInDb = async (
+  dbService: EntityManager<IDatabaseDriver<Connection>>,
+  config?: {
+    email?: string;
+    password?: string;
+  },
+) => {
   const defaultConfig = {
     email: MOCK_AUTH_EMAIL,
     password: MOCK_AUTH_PASS,
   };
 
-  const password = defaultConfig.password;
+  const password = config?.password || defaultConfig.password;
   const hashedPassword = await argon2.hash(password, ARGON2_OPTIONS);
 
   const values = {
     ...defaultConfig,
+    ...config,
     password: hashedPassword,
   };
 
