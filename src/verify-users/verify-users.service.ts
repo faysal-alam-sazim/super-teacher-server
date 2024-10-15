@@ -2,7 +2,6 @@ import { BadRequestException, Injectable } from "@nestjs/common";
 
 import dayjs from "dayjs";
 
-import { EVerifyUserStatus } from "@/common/enums/verifyUsersStatus.enum";
 import { MailService } from "@/mail/mail.service";
 import { UsersRepository } from "@/users/users.repository";
 
@@ -29,7 +28,6 @@ export class VerifyUsersService {
     const verifyUser = this.verifyUsersRepository.create({
       otp,
       expiresAt,
-      status: EVerifyUserStatus.ACTIVE,
       isChecked: false,
       user,
     });

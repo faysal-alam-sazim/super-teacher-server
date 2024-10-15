@@ -1,7 +1,6 @@
 import {
   Entity,
   EntityRepositoryType,
-  Enum,
   ManyToOne,
   PrimaryKey,
   Property,
@@ -10,7 +9,6 @@ import {
 
 import { VerifyUsersRepository } from "@/verify-users/verify-users.repository";
 
-import { EVerifyUserStatus } from "../enums/verifyUsersStatus.enum";
 import { CustomBaseEntity } from "./custom-base.entity";
 import { User } from "./users.entity";
 
@@ -26,9 +24,6 @@ export class VerifyUsers extends CustomBaseEntity {
 
   @Property({ fieldName: "expires_at" })
   expiresAt!: Date;
-
-  @Enum({ items: () => EVerifyUserStatus, fieldName: "status" })
-  status!: EVerifyUserStatus;
 
   @Property({ fieldName: "is_checked" })
   isChecked: boolean = false;
