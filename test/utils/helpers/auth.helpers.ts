@@ -38,7 +38,7 @@ export const getTeacherInfo = () => {
     gender: EUserGender.MALE,
     email: MOCK_TEACHER_EMAIL,
     password: faker.internet.password(),
-    role: EUserRole.STUDENT,
+    role: EUserRole.TEACHER,
     teacherInput: {
       code: MOCK_TEACHER_UNIQUE_CODE,
       majorSubject: faker.helpers.arrayElement([
@@ -65,7 +65,7 @@ export const getTeacherInfo = () => {
     gender: EUserGender.MALE,
     email: faker.internet.email(),
     password: faker.internet.password(),
-    role: EUserRole.STUDENT,
+    role: EUserRole.TEACHER,
     teacherInput: {
       code: MOCK_TEACHER_UNIQUE_CODE,
       majorSubject: faker.helpers.arrayElement([

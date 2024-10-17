@@ -45,19 +45,23 @@ describe("AuthController (e2e)", () => {
   });
 
   describe("POST /auth/signup", () => {
-    it("registers student and returns CREATED(201) with auth token", () => {
+    it("registers student and returns CREATED(201) with auth token", async () => {
       const studentInfo = getStudentInfo();
 
-      request(httpServer)
+      await request(httpServer)
         .post("/auth/signup")
         .send(studentInfo)
         .expect(HttpStatus.CREATED)
         .expect(({ body }) => {
           expect(body.data).toHaveProperty("accessToken");
           expect(body.data).toHaveProperty("user");
-          expect(body.data.user.firstName).toEqual(studentInfo.firstName);
-          expect(body.data.user.claim).toEqual(studentInfo.role);
-          expect(body.data.user.email).toEqual(studentInfo.email);
+          expect(body.data.user).toEqual(
+            expect.objectContaining({
+              firstName: studentInfo.firstName,
+              claim: studentInfo.role,
+              email: studentInfo.email,
+            }),
+          );
         });
     });
 
@@ -65,16 +69,20 @@ describe("AuthController (e2e)", () => {
       await createUniqueCode(dbService);
       const { teacherWithMockValues } = getTeacherInfo();
 
-      request(httpServer)
+      await request(httpServer)
         .post("/auth/signup")
         .send(teacherWithMockValues)
         .expect(HttpStatus.CREATED)
         .expect(({ body }) => {
           expect(body.data).toHaveProperty("accessToken");
           expect(body.data).toHaveProperty("user");
-          expect(body.data.user.firstName).toEqual(teacherWithMockValues.firstName);
-          expect(body.data.user.claim).toEqual(teacherWithMockValues.role);
-          expect(body.data.user.email).toEqual(teacherWithMockValues.email);
+          expect(body.data.user).toEqual(
+            expect.objectContaining({
+              firstName: teacherWithMockValues.firstName,
+              claim: teacherWithMockValues.role,
+              email: teacherWithMockValues.email,
+            }),
+          );
         });
     });
 
@@ -82,15 +90,15 @@ describe("AuthController (e2e)", () => {
       await createUniqueCode(dbService);
       const { teacherWithRandomEmail } = getTeacherInfo();
 
-      request(httpServer)
+      await request(httpServer)
         .post("/auth/signup")
         .send(teacherWithRandomEmail)
         .expect(HttpStatus.UNAUTHORIZED);
     });
 
-    it("should return BAD_REQUEST(400) without user info", () => {
+    it("should return BAD_REQUEST(400) without user info", async () => {
       const userInfo = getValuesWithoutUserInfo();
-      request(httpServer).post("/auth/signup").send(userInfo).expect(HttpStatus.BAD_REQUEST);
+      await request(httpServer).post("/auth/signup").send(userInfo).expect(HttpStatus.BAD_REQUEST);
     });
   });
 });
