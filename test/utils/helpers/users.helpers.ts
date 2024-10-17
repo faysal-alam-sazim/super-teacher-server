@@ -6,7 +6,7 @@ import { ARGON2_OPTIONS } from "@/common/config/argon2.config";
 import { EUserRole } from "@/common/enums/roles.enum";
 
 import { MOCK_AUTH_EMAIL, MOCK_AUTH_PASS } from "../../auth/auth.mock";
-import { StudentsFactory, UserFactory } from "../factories/users.factory";
+import { StudentsFactory, TeacherFactory, UserFactory } from "../factories/users.factory";
 
 export const createUserInDb = async (
   dbService: EntityManager<IDatabaseDriver<Connection>>,
@@ -57,4 +57,74 @@ export const createStudentUsersInDb = async (
   });
 
   await dbService.persistAndFlush([...users, ...students]);
+};
+
+export const createSingleStudentUserInDb = async (
+  dbService: EntityManager<IDatabaseDriver<Connection>>,
+  config?: {
+    email?: string;
+    password?: string;
+  },
+) => {
+  const defaultConfig = {
+    email: MOCK_AUTH_EMAIL,
+    password: MOCK_AUTH_PASS,
+  };
+
+  const password = config?.password || defaultConfig.password;
+  const hashedPassword = await argon2.hash(password, ARGON2_OPTIONS);
+
+  const values = {
+    ...defaultConfig,
+    ...config,
+    password: hashedPassword,
+  };
+
+  const user = new UserFactory(dbService).makeOne({
+    email: values.email,
+    password: values.password,
+  });
+
+  const student = new StudentsFactory(dbService).makeOne();
+
+  user.student = student;
+
+  await dbService.persistAndFlush(user);
+
+  return user;
+};
+
+export const createSingleTeacherUserInDb = async (
+  dbService: EntityManager<IDatabaseDriver<Connection>>,
+  config?: {
+    email?: string;
+    password?: string;
+  },
+) => {
+  const defaultConfig = {
+    email: MOCK_AUTH_EMAIL,
+    password: MOCK_AUTH_PASS,
+  };
+
+  const password = config?.password || defaultConfig.password;
+  const hashedPassword = await argon2.hash(password, ARGON2_OPTIONS);
+
+  const values = {
+    ...defaultConfig,
+    ...config,
+    password: hashedPassword,
+  };
+
+  const user = new UserFactory(dbService).makeOne({
+    email: values.email,
+    password: values.password,
+  });
+
+  const teacher = new TeacherFactory(dbService).makeOne();
+
+  user.teacher = teacher;
+
+  await dbService.persistAndFlush(user);
+
+  return user;
 };
