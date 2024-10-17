@@ -103,8 +103,9 @@ export class UsersService {
     const { email, newPassword, otp } = updatePasswordDto;
 
     const user = await this.usersRepository.findOneOrFail({ email });
+    const isVerified = await this.isOtpVerified(user, otp);
 
-    if (!this.isOtpVerified(user, otp)) {
+    if (!isVerified) {
       throw new UnauthorizedException("OTP isn't verified");
     }
     user.password = await this.hashPassword(newPassword);
