@@ -6,6 +6,7 @@ import { faker } from "@faker-js/faker";
 import request from "supertest";
 
 import { User } from "@/common/entities/users.entity";
+import { EStudentEducationLevel } from "@/common/enums/educationLevel.enum";
 
 import { MOCK_TEACHER_EMAIL } from "../auth/auth.mock";
 import { bootstrapTestServer } from "../utils/bootstrap";
@@ -101,7 +102,7 @@ describe("UsersController (e2e)", () => {
     });
   });
 
-  describe("GET /users/profile", () => {
+  describe("User Profile", () => {
     const testStudentEmail = faker.internet.email();
     const testStudentPassword = faker.internet.password();
 
@@ -120,44 +121,106 @@ describe("UsersController (e2e)", () => {
       });
     });
 
-    it("returns OK(200) with student profile data", async () => {
-      const token = await getAccessToken(httpServer, testStudentEmail, testStudentPassword);
+    describe("GET /users/profile", () => {
+      it("returns OK(200) with student profile data", async () => {
+        const token = await getAccessToken(httpServer, testStudentEmail, testStudentPassword);
 
-      request(httpServer)
-        .get("/users/profile")
-        .set("Authorization", `Bearer ${token}`)
-        .expect(HttpStatus.OK)
-        .expect((response) => {
-          const { data } = response.body;
-          expect(data).toHaveProperty("email");
-          expect(data).toHaveProperty("firstName");
-          expect(data).toHaveProperty("lastName");
-          expect(data).toHaveProperty("role", "STUDENT");
-          expect(data.student).toHaveProperty("educationLevel");
-        });
+        request(httpServer)
+          .get("/users/profile")
+          .set("Authorization", `Bearer ${token}`)
+          .expect(HttpStatus.OK)
+          .expect((response) => {
+            const { data } = response.body;
+            expect(data).toHaveProperty("email");
+            expect(data).toHaveProperty("firstName");
+            expect(data).toHaveProperty("lastName");
+            expect(data).toHaveProperty("role", "STUDENT");
+            expect(data.student).toHaveProperty("educationLevel");
+          });
+      });
+
+      it("returns OK(200) with teacher profile data", async () => {
+        const token = await getAccessToken(httpServer, testTeacherEmail, testTeacherPassword);
+
+        request(httpServer)
+          .get("/users/profile")
+          .set("Authorization", `Bearer ${token}`)
+          .expect(HttpStatus.OK)
+          .expect((response) => {
+            const { data } = response.body;
+            expect(data).toHaveProperty("email");
+            expect(data).toHaveProperty("firstName");
+            expect(data).toHaveProperty("lastName");
+            expect(data).toHaveProperty("role", "TEACHER");
+            expect(data.student).toHaveProperty("majorSubject");
+            expect(data.student).toHaveProperty("highestEducationLevel");
+            expect(data.student).toHaveProperty("subjectsToTeach");
+            expect(Array.isArray(data.student.subjectsToTeach)).toBe(true);
+          });
+      });
+
+      it("returns UNAUTHORIZED(401) if user is not authenticated", () =>
+        request(httpServer).get("/users/profile").expect(HttpStatus.UNAUTHORIZED));
     });
 
-    it("returns OK(200) with teacher profile data", async () => {
-      const token = await getAccessToken(httpServer, testTeacherEmail, testTeacherPassword);
+    describe("PATCH /users/profile", () => {
+      const updatedStudent = {
+        firstName: faker.person.firstName(),
+        studentInput: {
+          educationLevel: EStudentEducationLevel.COLLEGE,
+          class: "Class 11",
+        },
+      };
 
-      request(httpServer)
-        .get("/users/profile")
-        .set("Authorization", `Bearer ${token}`)
-        .expect(HttpStatus.OK)
-        .expect((response) => {
-          const { data } = response.body;
-          expect(data).toHaveProperty("email");
-          expect(data).toHaveProperty("firstName");
-          expect(data).toHaveProperty("lastName");
-          expect(data).toHaveProperty("role", "TEACHER");
-          expect(data.student).toHaveProperty("majorSubject");
-          expect(data.student).toHaveProperty("highestEducationLevel");
-          expect(data.student).toHaveProperty("subjectsToTeach");
-          expect(Array.isArray(data.student.subjectsToTeach)).toBe(true);
-        });
+      const updatedTeacher = {
+        firstName: faker.person.firstName(),
+        teacherInput: {
+          majorSubject: "Physics",
+        },
+      };
+
+      it("returns OK(200) with updated student profile data", async () => {
+        const token = await getAccessToken(httpServer, testStudentEmail, testStudentPassword);
+
+        request(httpServer)
+          .patch("/users/profile")
+          .set("Authorization", `Bearer ${token}`)
+          .send(updatedStudent)
+          .expect(HttpStatus.OK)
+          .expect((response) => {
+            const { data } = response.body;
+            expect(data).toHaveProperty("firstName", updatedStudent.firstName);
+            expect(data.student).toHaveProperty(
+              "educationLevel",
+              updatedStudent.studentInput.educationLevel,
+            );
+            expect(data.student).toHaveProperty("class", updatedStudent.studentInput.class);
+          });
+      });
+
+      it("returns OK(200) with updated student profile data", async () => {
+        const token = await getAccessToken(httpServer, testTeacherEmail, testTeacherPassword);
+
+        request(httpServer)
+          .patch("/users/profile")
+          .set("Authorization", `Bearer ${token}`)
+          .send(updatedTeacher)
+          .expect(HttpStatus.OK)
+          .expect((response) => {
+            const { data } = response.body;
+            expect(data).toHaveProperty("firstName", updatedTeacher.firstName);
+            expect(data.teacher).toHaveProperty(
+              "majorSubject",
+              updatedTeacher.teacherInput.majorSubject,
+            );
+          });
+      });
+
+      it("returns UNAUTHORIZED(401) if user is not authenticated", () =>
+        request(httpServer)
+          .patch("/users/profile")
+          .send(updatedStudent)
+          .expect(HttpStatus.UNAUTHORIZED));
     });
-
-    it("returns UNAUTHORIZED(401) if user is not authenticated", () =>
-      request(httpServer).get("/users/profile").expect(HttpStatus.UNAUTHORIZED));
   });
 });
