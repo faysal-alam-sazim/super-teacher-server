@@ -83,6 +83,7 @@ export const createSingleStudentUserInDb = async (
   const user = new UserFactory(dbService).makeOne({
     email: values.email,
     password: values.password,
+    role: EUserRole.STUDENT,
   });
 
   const student = new StudentsFactory(dbService).makeOne();
@@ -118,6 +119,7 @@ export const createSingleTeacherUserInDb = async (
   const user = new UserFactory(dbService).makeOne({
     email: values.email,
     password: values.password,
+    role: EUserRole.TEACHER,
   });
 
   const teacher = new TeacherFactory(dbService).makeOne();
