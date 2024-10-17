@@ -5,6 +5,7 @@ import { PassportModule } from "@nestjs/passport";
 import { MikroOrmModule } from "@mikro-orm/nestjs";
 
 import { User } from "@/common/entities/users.entity";
+import { UniqueCodeModule } from "@/unique-code/unique-code.module";
 
 import { AuthController } from "./auth.controller";
 import { AuthService } from "./auth.service";
@@ -21,6 +22,7 @@ import { LocalStrategy } from "./strategies/local.strategy";
       },
     }),
     MikroOrmModule.forFeature([User]),
+    UniqueCodeModule,
   ],
   providers: [AuthService, LocalStrategy, JwtStrategy],
   controllers: [AuthController],

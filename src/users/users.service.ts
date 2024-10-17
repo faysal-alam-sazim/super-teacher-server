@@ -10,7 +10,7 @@ import { User } from "@/common/entities/users.entity";
 import { EUserRole } from "@/common/enums/roles.enum";
 import { VerifyUsersRepository } from "@/verify-users/verify-users.repository";
 
-import { CreateUserDto, ResetPasswordDto, UpdateUserDto, UpdatePasswordDto } from "./users.dtos";
+import { ResetPasswordDto, UpdateUserDto, UpdatePasswordDto } from "./users.dtos";
 import { UsersRepository } from "./users.repository";
 
 @Injectable()
@@ -35,29 +35,6 @@ export class UsersService {
       email,
     });
     return user;
-  }
-
-  async createUser(createUserDto: CreateUserDto) {
-    const existingUser = await this.usersRepository.findOne({ email: createUserDto.email });
-    let newUser;
-
-    if (existingUser) {
-      throw new BadRequestException("User already exists");
-    }
-
-    if (createUserDto.role === EUserRole.TEACHER) {
-      newUser = this.usersRepository.createTeacher({
-        ...createUserDto,
-        password: await this.hashPassword(createUserDto.password),
-      });
-    } else {
-      newUser = this.usersRepository.createStudent({
-        ...createUserDto,
-        password: await this.hashPassword(createUserDto.password),
-      });
-    }
-
-    return newUser;
   }
 
   async getAllStudents() {
