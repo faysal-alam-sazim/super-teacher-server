@@ -2,17 +2,21 @@ import { HttpStatus, INestApplication } from "@nestjs/common";
 
 import { EntityManager, IDatabaseDriver, Connection, MikroORM } from "@mikro-orm/core";
 
+import { faker } from "@faker-js/faker";
 import request from "supertest";
+
+import { EStudentEducationLevel } from "@/common/enums/educationLevel.enum";
+import { EUserGender } from "@/common/enums/gender.enum";
+import { EHighestEducationLevel } from "@/common/enums/highestEducationLevel.enum";
+import { EMedium } from "@/common/enums/medium.enum";
+import { EUserRole } from "@/common/enums/roles.enum";
 
 import { bootstrapTestServer } from "../utils/bootstrap";
 import { truncateTables } from "../utils/db";
-import {
-  createUniqueCode,
-  getStudentInfo,
-  getTeacherInfo,
-  getValuesWithoutUserInfo,
-} from "../utils/helpers/auth.helpers";
+import { createUniqueCodeInDb, getValuesWithoutUserInfo } from "../utils/helpers/auth.helpers";
 import { THttpServer } from "../utils/types";
+import { MOCK_TEACHER_EMAIL, MOCK_TEACHER_UNIQUE_CODE } from "./auth.mock";
+
 
 describe("AuthController (e2e)", () => {
   let app: INestApplication;
@@ -45,9 +49,109 @@ describe("AuthController (e2e)", () => {
   });
 
   describe("POST /auth/signup", () => {
-    it("registers student and returns CREATED(201) with auth token", async () => {
-      const studentInfo = getStudentInfo();
+    type TStudentInput = {
+      address: string;
+      phoneNumber: string;
+      educationLevel: EStudentEducationLevel;
+      medium: EMedium;
+      class: string;
+    };
 
+    type TTeacherInput = {
+      code: string;
+      majorSubject: string;
+      highestEducationLevel: EHighestEducationLevel;
+      subjectsToTeach: string[];
+    };
+
+    type TUser = {
+      firstName: string;
+      lastName: string;
+      gender: EUserGender;
+      email: string;
+      password: string;
+      role: EUserRole;
+      teacherInput?: TTeacherInput;
+      studentInput?: TStudentInput;
+    };
+
+    let teacherWithMockValues: TUser;
+    let teacherWithRandomEmail: TUser;
+    let studentInfo: TUser;
+
+    beforeAll(() => {
+      teacherWithMockValues = {
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
+        gender: EUserGender.MALE,
+        email: MOCK_TEACHER_EMAIL,
+        password: faker.internet.password(),
+        role: EUserRole.TEACHER,
+        teacherInput: {
+          code: MOCK_TEACHER_UNIQUE_CODE,
+          majorSubject: faker.helpers.arrayElement([
+            "Physics",
+            "Chemistry",
+            "Math",
+            "Geography",
+            "Communication",
+          ]),
+          highestEducationLevel: faker.helpers.enumValue(EHighestEducationLevel),
+          subjectsToTeach: faker.helpers.arrayElements([
+            "Physics",
+            "Chemistry",
+            "Math",
+            "Geography",
+            "Communication",
+          ]),
+        },
+      };
+
+      teacherWithRandomEmail = {
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
+        gender: EUserGender.MALE,
+        email: faker.internet.email(),
+        password: faker.internet.password(),
+        role: EUserRole.TEACHER,
+        teacherInput: {
+          code: MOCK_TEACHER_UNIQUE_CODE,
+          majorSubject: faker.helpers.arrayElement([
+            "Physics",
+            "Chemistry",
+            "Math",
+            "Geography",
+            "Communication",
+          ]),
+          highestEducationLevel: faker.helpers.enumValue(EHighestEducationLevel),
+          subjectsToTeach: faker.helpers.arrayElements([
+            "Physics",
+            "Chemistry",
+            "Math",
+            "Geography",
+            "Communication",
+          ]),
+        },
+      };
+
+      studentInfo = {
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
+        gender: EUserGender.MALE,
+        email: faker.internet.email(),
+        password: faker.internet.password(),
+        role: EUserRole.STUDENT,
+        studentInput: {
+          address: faker.location.streetAddress(),
+          phoneNumber: faker.phone.number(),
+          educationLevel: EStudentEducationLevel.SCHOOL,
+          medium: EMedium.BANGLA,
+          class: "Class 1",
+        },
+      };
+    });
+
+    it("registers student and returns CREATED(201) with auth token", async () => {
       await request(httpServer)
         .post("/auth/signup")
         .send(studentInfo)
@@ -66,8 +170,7 @@ describe("AuthController (e2e)", () => {
     });
 
     it("registers teacher and returns CREATED(201) with auth token", async () => {
-      await createUniqueCode(dbService);
-      const { teacherWithMockValues } = getTeacherInfo();
+      await createUniqueCodeInDb(dbService);
 
       await request(httpServer)
         .post("/auth/signup")
@@ -87,8 +190,7 @@ describe("AuthController (e2e)", () => {
     });
 
     it("should return Unauthorized(401) as the email doesn't registerd by admin", async () => {
-      await createUniqueCode(dbService);
-      const { teacherWithRandomEmail } = getTeacherInfo();
+      await createUniqueCodeInDb(dbService);
 
       await request(httpServer)
         .post("/auth/signup")
