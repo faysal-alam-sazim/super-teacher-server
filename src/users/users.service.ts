@@ -59,23 +59,27 @@ export class UsersService {
     const user = await this.usersRepository.findOneOrFail(id);
     const { firstName, lastName, gender } = updateUserDto;
 
-    this.usersRepository.assign(user, { firstName, lastName, gender });
+    this.usersRepository.assign(user, {
+      ...(firstName && { firstName }),
+      ...(lastName && { lastName }),
+      ...(gender && { gender }),
+    });
 
-    if (user.role === EUserRole.TEACHER) {
+    if (user.role === EUserRole.TEACHER && updateUserDto.teacherInput) {
       const { teacherInput } = updateUserDto;
 
       this.entityManager.assign(user.teacher, teacherInput);
     } else {
       const { studentInput } = updateUserDto;
 
-      user.student.address = studentInput.address;
-      user.student.phoneNumber = studentInput.phoneNumber;
-      user.student.educationLevel = studentInput.educationLevel;
-      user.student.degree = studentInput.degree || null;
-      user.student.degreeName = studentInput.degreeName || null;
-      user.student.semesterYear = studentInput.semesterYear || null;
-      user.student.medium = studentInput.medium || null;
-      user.student.class = studentInput.class || null;
+      user.student.address = studentInput?.address || user.student.address;
+      user.student.phoneNumber = studentInput?.phoneNumber || user.student.phoneNumber;
+      user.student.educationLevel = studentInput?.educationLevel || user.student.educationLevel;
+      user.student.degree = studentInput?.degree || null;
+      user.student.degreeName = studentInput?.degreeName || null;
+      user.student.semesterYear = studentInput?.semesterYear || null;
+      user.student.medium = studentInput?.medium || null;
+      user.student.class = studentInput?.class || null;
     }
 
     await this.entityManager.persistAndFlush(user);
