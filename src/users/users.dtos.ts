@@ -27,79 +27,79 @@ export class TokenizedUser implements ITokenizedUser {
 export class UpdateStudentDto {
   @IsOptional()
   @IsString()
-  address!: string;
+  address?: string;
 
   @IsOptional()
   @IsString()
-  phoneNumber!: string;
+  phoneNumber?: string;
 
   @IsOptional()
   @IsEnum(EStudentEducationLevel)
-  educationLevel!: EStudentEducationLevel;
+  educationLevel?: EStudentEducationLevel;
 
   @IsOptional()
   @IsEnum(EMedium)
-  medium!: EMedium;
+  medium?: EMedium;
 
   @IsOptional()
   @IsString()
-  class!: string;
+  class?: string;
 
   @IsOptional()
   @IsEnum(EDegree)
-  degree!: EDegree;
+  degree?: EDegree;
 
   @IsOptional()
   @IsString()
-  degreeName!: string;
+  degreeName?: string;
 
   @IsOptional()
   @IsString()
-  semesterYear!: string;
+  semesterYear?: string;
 }
 
 export class UpdateTeacherDto {
   @IsOptional()
   @IsString()
-  majorSubject!: string;
+  majorSubject?: string;
 
   @IsOptional()
   @IsEnum(EHighestEducationLevel)
-  highestEducationLevel!: EHighestEducationLevel;
+  highestEducationLevel?: EHighestEducationLevel;
 
   @IsOptional()
   @IsArray()
-  subjectsToTeach!: Array<string>;
+  subjectsToTeach?: Array<string>;
 }
 
 export class UpdateUserDto {
   @IsOptional()
   @IsString()
-  firstName!: string;
+  firstName?: string;
 
   @IsOptional()
   @IsString()
-  lastName!: string;
+  lastName?: string;
 
   @IsOptional()
   @IsEnum(EUserGender)
-  gender!: EUserGender;
+  gender?: EUserGender;
 
   @IsOptional()
   @IsEnum(EUserRole)
-  role!: EUserRole;
+  role?: EUserRole;
 
   @IsOptional()
   @ValidateIf((o) => o.role === EUserRole.STUDENT)
   @IsObject()
   @Type(() => UpdateStudentDto)
-  studentInput!: UpdateStudentDto;
+  studentInput?: UpdateStudentDto;
 
   @IsOptional()
   @ValidateIf((o) => o.role === EUserRole.TEACHER)
   @IsObject()
   @Type(() => UpdateTeacherDto)
-  teacherInput!: UpdateTeacherDto;
+  teacherInput?: UpdateTeacherDto;
 }
 
 export class UpdatePasswordDto {
