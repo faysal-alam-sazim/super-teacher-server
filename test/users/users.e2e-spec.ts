@@ -6,6 +6,7 @@ import { faker } from "@faker-js/faker";
 import request from "supertest";
 
 import { User } from "@/common/entities/users.entity";
+import { VerifyUsers } from "@/common/entities/verify-users.entity";
 import { EStudentEducationLevel } from "@/common/enums/educationLevel.enum";
 import { EUserRole } from "@/common/enums/roles.enum";
 
@@ -13,6 +14,7 @@ import { MOCK_TEACHER_EMAIL } from "../auth/auth.mock";
 import { bootstrapTestServer } from "../utils/bootstrap";
 import { truncateTables } from "../utils/db";
 import { getAccessToken } from "../utils/helpers/access-token.helpers";
+import { createVerifyUserInDb } from "../utils/helpers/create-verify-user-in-db.helpers";
 import {
   createSingleStudentUserInDb,
   createSingleTeacherUserInDb,
@@ -214,5 +216,31 @@ describe("UsersController (e2e)", () => {
           .send(updatedStudent)
           .expect(HttpStatus.UNAUTHORIZED));
     });
+  });
+
+  describe("PATCH /users/update-password", () => {
+    let unVerifiedOtpUser: VerifyUsers;
+    let verifiedOtpUser: VerifyUsers;
+    let user: User;
+
+    const newPassword = faker.internet.password();
+
+    beforeAll(async () => {
+      user = await createUserInDb(dbService, { email: faker.internet.email() });
+      unVerifiedOtpUser = await createVerifyUserInDb(dbService, user, false);
+      verifiedOtpUser = await createVerifyUserInDb(dbService, user, true);
+    });
+
+    it("should return Unauthorized(401) without otp verification", () =>
+      request(httpServer)
+        .patch("/users/update-password")
+        .send({ email: user.email, otp: unVerifiedOtpUser.otp, newPassword: newPassword })
+        .expect(HttpStatus.UNAUTHORIZED));
+
+    it("should return OK(200) updating password after otp verification", () =>
+      request(httpServer)
+        .patch("/users/update-password")
+        .send({ email: user.email, otp: verifiedOtpUser.otp, newPassword: newPassword })
+        .expect(HttpStatus.OK));
   });
 });
