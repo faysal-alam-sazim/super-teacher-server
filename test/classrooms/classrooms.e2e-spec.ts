@@ -270,4 +270,64 @@ describe("ClassroomsController (e2e)", () => {
         .send(updatingClassroom)
         .expect(HttpStatus.UNAUTHORIZED));
   });
+
+  describe("DELETE /classrooms/:classroomId", () => {
+    let teacherUser: User;
+    let anotherTeacherUser: User;
+    let studentUser: User;
+    let classroom: Classroom;
+    const testUserPassword = faker.internet.password();
+
+    beforeAll(async () => {
+      studentUser = await createSingleStudentUserInDb(dbService, {
+        email: faker.internet.email(),
+        password: testUserPassword,
+      });
+
+      teacherUser = await createSingleTeacherUserInDb(dbService, {
+        email: faker.internet.email(),
+        password: testUserPassword,
+      });
+
+      anotherTeacherUser = await createSingleTeacherUserInDb(dbService, {
+        email: faker.internet.email(),
+        password: testUserPassword,
+      });
+
+      const classrooms = await createClassroomInDb(dbService, teacherUser.teacher);
+      classroom = classrooms[0];
+
+      await enrollStudentInClassroomsInDb(dbService, classrooms, [studentUser.student]);
+    });
+
+    it("should return OK(200) after successful deletion by teacher", async () => {
+      const token = await getAccessToken(httpServer, teacherUser.email, testUserPassword);
+
+      await request(httpServer)
+        .delete(`/classrooms/${classroom.id}`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(HttpStatus.OK);
+    });
+
+    it("should return FORBIDDEN(403) for trying to delete as student", async () => {
+      const token = await getAccessToken(httpServer, studentUser.email, testUserPassword);
+
+      await request(httpServer)
+        .delete(`/classrooms/${classroom.id}`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(HttpStatus.FORBIDDEN);
+    });
+
+    it("should return FORBIDDEN(403) for trying to delete another teacher's classroom", async () => {
+      const token = await getAccessToken(httpServer, anotherTeacherUser.email, testUserPassword);
+
+      await request(httpServer)
+        .delete(`/classrooms/${classroom.id}`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(HttpStatus.FORBIDDEN);
+    });
+
+    it("returns UNAUTHORIZED(401) if user is not authenticated", () =>
+      request(httpServer).delete(`/classrooms/${classroom.id}`).expect(HttpStatus.UNAUTHORIZED));
+  });
 });
