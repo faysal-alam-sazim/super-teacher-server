@@ -19,7 +19,7 @@ export class ClassroomOwnershipGuard implements CanActivate {
 
     const userFromDb = await this.usersRepository.findOneOrFail({ id: user.id });
 
-    const classroom = await this.classroomsRepository.findOneOrFail({
+    const classroom = await this.classroomsRepository.findOne({
       id: classroomId,
       teacher: userFromDb.teacher.id,
     });
