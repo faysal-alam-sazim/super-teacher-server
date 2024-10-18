@@ -6,6 +6,7 @@ import { faker } from "@faker-js/faker";
 import request from "supertest";
 
 import { Classroom } from "@/common/entities/classrooms.entity";
+import { Student } from "@/common/entities/students.entity";
 import { User } from "@/common/entities/users.entity";
 import { MailService } from "@/mail/mail.service";
 
@@ -17,6 +18,7 @@ import { enrollStudentInClassroomsInDb } from "../utils/helpers/enroll-student-i
 import {
   createSingleStudentUserInDb,
   createSingleTeacherUserInDb,
+  createStudentUsersInDb,
 } from "../utils/helpers/users.helpers";
 import { THttpServer } from "../utils/types";
 
@@ -464,6 +466,41 @@ describe("ClassroomsController (e2e)", () => {
         .set("Authorization", `Bearer ${token}`)
         .send({ studentId: studentUser.student.id })
         .expect(HttpStatus.FORBIDDEN);
+    });
+
+    it("returns UNAUTHORIZED(401) if user is not authenticated", () =>
+      request(httpServer)
+        .delete(`/classrooms/${classroom.id}/students`)
+        .expect(HttpStatus.UNAUTHORIZED));
+  });
+
+  describe("GET /classrooms/:id/students", () => {
+    let teacherUser: User;
+    let students: Student[];
+    let classroom: Classroom;
+    const testUserPassword = faker.internet.password();
+
+    beforeAll(async () => {
+      students = await createStudentUsersInDb(dbService, 5);
+
+      teacherUser = await createSingleTeacherUserInDb(dbService, {
+        email: faker.internet.email(),
+        password: testUserPassword,
+      });
+
+      const classrooms = await createClassroomInDb(dbService, teacherUser.teacher);
+      classroom = classrooms[0];
+
+      await enrollStudentInClassroomsInDb(dbService, classrooms, students);
+    });
+
+    it("should return OK(200) with enrolled students", async () => {
+      const token = await getAccessToken(httpServer, teacherUser.email, testUserPassword);
+
+      await request(httpServer)
+        .get(`/classrooms/${classroom.id}/students`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(HttpStatus.OK);
     });
 
     it("returns UNAUTHORIZED(401) if user is not authenticated", () =>
