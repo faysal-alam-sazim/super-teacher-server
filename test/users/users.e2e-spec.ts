@@ -243,4 +243,47 @@ describe("UsersController (e2e)", () => {
         .send({ email: user.email, otp: verifiedOtpUser.otp, newPassword: newPassword })
         .expect(HttpStatus.OK));
   });
+
+  describe("PATCH /users/reset-password", () => {
+    let user: User;
+    let token: string;
+
+    const testOldPassword = faker.internet.password();
+    const newPassword = faker.internet.password();
+
+    beforeAll(async () => {
+      user = await createUserInDb(dbService, {
+        email: faker.internet.email(),
+        password: testOldPassword,
+      });
+      token = await getAccessToken(httpServer, user.email, testOldPassword);
+    });
+
+    it("should return OK(200) with user access token", () =>
+      request(httpServer)
+        .patch("/users/reset-password")
+        .set("Authorization", `Bearer ${token}`)
+        .send({ oldPassword: testOldPassword, newPassword })
+        .expect(HttpStatus.OK));
+
+    it("should return Unauthorized(401) without user access token", () =>
+      request(httpServer)
+        .patch("/users/reset-password")
+        .send({ oldPassword: testOldPassword, newPassword })
+        .expect(HttpStatus.UNAUTHORIZED));
+
+    it("should return Bad_Request(400) without old password", () =>
+      request(httpServer)
+        .patch("/users/reset-password")
+        .set("Authorization", `Bearer ${token}`)
+        .send({ newPassword })
+        .expect(HttpStatus.BAD_REQUEST));
+
+    it("should return Bad_Request(400) with wrong old password", () =>
+      request(httpServer)
+        .patch("/users/reset-password")
+        .set("Authorization", `Bearer ${token}`)
+        .send({ oldPassword: faker.internet.password(), newPassword })
+        .expect(HttpStatus.BAD_REQUEST));
+  });
 });
