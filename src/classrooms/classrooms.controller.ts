@@ -59,18 +59,13 @@ export class ClassroomsController {
   }
 
   @Delete(":id/students")
-  @UseGuards(RolesGuard)
+  @UseGuards(RolesGuard, ClassroomOwnershipGuard)
   @Roles(EUserRole.TEACHER)
   removeStudentFromClassroom(
     @Param("id", ParseIntPipe) id: number,
-    @CurrentUser() user: ITokenizedUser,
     @Body() deleteEnrollDto: EnrollStudentDto,
   ) {
-    return this.classroomsService.removeStudentFromClassroom(
-      user.id,
-      id,
-      deleteEnrollDto.studentId,
-    );
+    return this.classroomsService.removeStudentFromClassroom(id, deleteEnrollDto.studentId);
   }
 
   @Get(":id/students")
