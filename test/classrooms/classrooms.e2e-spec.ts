@@ -5,6 +5,7 @@ import type { EntityManager, IDatabaseDriver, Connection, MikroORM } from "@mikr
 import { faker } from "@faker-js/faker";
 import request from "supertest";
 
+import { Classroom } from "@/common/entities/classrooms.entity";
 import { User } from "@/common/entities/users.entity";
 
 import { bootstrapTestServer } from "../utils/bootstrap";
@@ -92,5 +93,40 @@ describe("ClassroomsController (e2e)", () => {
 
     it("returns UNAUTHORIZED(401) if user is not authenticated", () =>
       request(httpServer).get("/classrooms").expect(HttpStatus.UNAUTHORIZED));
+  });
+
+  describe("GET /classrooms/:id", () => {
+    let teacherUser: User;
+    let classroom: Classroom;
+    const testUserPassword = faker.internet.password();
+
+    beforeAll(async () => {
+      teacherUser = await createSingleTeacherUserInDb(dbService, {
+        email: faker.internet.email(),
+        password: testUserPassword,
+      });
+
+      const classrooms = await createClassroomInDb(dbService, teacherUser.teacher);
+      classroom = classrooms[0];
+    });
+
+    it("should return OK(200) with the classroom created by teacher", async () => {
+      const token = await getAccessToken(httpServer, teacherUser.email, testUserPassword);
+
+      await request(httpServer)
+        .get(`/classrooms/${classroom.id}`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(HttpStatus.OK)
+        .expect((response) => {
+          const { data } = response.body;
+          expect(data).toHaveProperty("title");
+          expect(data).toHaveProperty("subject");
+          expect(data).toHaveProperty("classTime");
+          expect(data).toHaveProperty("days");
+        });
+    });
+
+    it("returns UNAUTHORIZED(401) if user is not authenticated", () =>
+      request(httpServer).get(`/classrooms/${classroom.id}`).expect(HttpStatus.UNAUTHORIZED));
   });
 });
