@@ -129,4 +129,69 @@ describe("ClassroomsController (e2e)", () => {
     it("returns UNAUTHORIZED(401) if user is not authenticated", () =>
       request(httpServer).get(`/classrooms/${classroom.id}`).expect(HttpStatus.UNAUTHORIZED));
   });
+
+  describe("CREATE /classrooms", () => {
+    let teacherUser: User;
+    let studentUser: User;
+    const testUserPassword = faker.internet.password();
+
+    const newClassroom = {
+      title: faker.word.words(2),
+      subject: faker.helpers.arrayElement([
+        "Physics",
+        "Chemistry",
+        "Math",
+        "Geography",
+        "Communication",
+      ]),
+      days: faker.helpers.multiple(faker.date.weekday),
+      classTime: faker.date.anytime(),
+    };
+
+    beforeAll(async () => {
+      studentUser = await createSingleStudentUserInDb(dbService, {
+        email: faker.internet.email(),
+        password: testUserPassword,
+      });
+
+      teacherUser = await createSingleTeacherUserInDb(dbService, {
+        email: faker.internet.email(),
+        password: testUserPassword,
+      });
+    });
+
+    it("should return CREATED(201) with the classroom created by teacher", async () => {
+      const token = await getAccessToken(httpServer, teacherUser.email, testUserPassword);
+
+      await request(httpServer)
+        .post("/classrooms")
+        .set("Authorization", `Bearer ${token}`)
+        .send(newClassroom)
+        .expect(HttpStatus.CREATED)
+        .expect((response) => {
+          const { data } = response.body;
+          expect(data).toEqual(
+            expect.objectContaining({
+              title: newClassroom.title,
+              subject: newClassroom.subject,
+              classTime: newClassroom.classTime.toISOString(),
+              days: expect.arrayContaining(newClassroom.days),
+            }),
+          );
+        });
+    });
+
+    it("should return FORBIDDEN(403) for trying to create student", async () => {
+      const token = await getAccessToken(httpServer, studentUser.email, testUserPassword);
+
+      await request(httpServer)
+        .post("/classrooms")
+        .set("Authorization", `Bearer ${token}`)
+        .send(newClassroom)
+        .expect(HttpStatus.FORBIDDEN);
+    });
+
+    it("returns UNAUTHORIZED(401) if user is not authenticated", () =>
+      request(httpServer).post("/classrooms").send(newClassroom).expect(HttpStatus.UNAUTHORIZED));
+  });
 });
