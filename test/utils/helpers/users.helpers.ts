@@ -57,6 +57,8 @@ export const createStudentUsersInDb = async (
   });
 
   await dbService.persistAndFlush([...users, ...students]);
+
+  return students;
 };
 
 export const createSingleStudentUserInDb = async (
