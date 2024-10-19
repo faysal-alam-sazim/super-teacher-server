@@ -82,6 +82,7 @@ export class GlobalChatGateway extends AbstractWebsocketGateway {
     const payload = {
       classroom: message.classroomId,
       message: message.message,
+      attachmentUrl: message.attachmentUrl,
       createdAt: new Date().toISOString(),
       sender: {
         id: message.senderId,
