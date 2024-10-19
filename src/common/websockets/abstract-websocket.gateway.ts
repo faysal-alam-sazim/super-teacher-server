@@ -10,11 +10,15 @@ export abstract class AbstractWebsocketGateway implements OnModuleInit, OnModule
   @WebSocketServer() protected readonly server!: Server;
 
   onModuleInit() {
-    this.server.on("connection", (socket) => this.processNewConnection(socket));
+    if (this.server) {
+      this.server.on("connection", (socket) => this.processNewConnection(socket));
+    }
   }
 
   onModuleDestroy() {
-    this.server.close();
+    if (this.server) {
+      this.server.close();
+    }
   }
 
   abstract processNewConnection(socket: TSocket): void;

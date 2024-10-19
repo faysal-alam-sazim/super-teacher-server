@@ -30,23 +30,25 @@ export class GlobalChatGateway extends AbstractWebsocketGateway {
   onModuleInit(): void {
     super.onModuleInit();
 
-    this.server.use((socket: TSocket, next) => {
-      const headers = socket.handshake.auth;
-      const token = extractBearerAuthTokenFromHeaders(headers);
+    if (this.server) {
+      this.server.use((socket: TSocket, next) => {
+        const headers = socket.handshake.auth;
+        const token = extractBearerAuthTokenFromHeaders(headers);
 
-      try {
-        const payload = this.jwtService.verify(token, {
-          secret: process.env.JWT_SECRET,
-          ignoreExpiration: false,
-          ignoreNotBefore: false,
-        });
-        socket.userId = payload.sub;
+        try {
+          const payload = this.jwtService.verify(token, {
+            secret: process.env.JWT_SECRET,
+            ignoreExpiration: false,
+            ignoreNotBefore: false,
+          });
+          socket.userId = payload.sub;
 
-        return next();
-      } catch (err) {
-        return next(new UnauthorizedException());
-      }
-    });
+          return next();
+        } catch (err) {
+          return next(new UnauthorizedException());
+        }
+      });
+    }
   }
 
   processNewConnection(socket: TSocket): void {
@@ -71,6 +73,7 @@ export class GlobalChatGateway extends AbstractWebsocketGateway {
     @MessageBody() classroomId: number,
   ): void {
     socket.join(`classroom_${classroomId}`);
+    console.log(`UserId ${socket.userId} joined classromm_${classroomId}`);
   }
 
   @SubscribeMessage(EGatewayIncomingEvent.SEND_MESSAGE)
