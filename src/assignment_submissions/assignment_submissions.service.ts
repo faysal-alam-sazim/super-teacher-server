@@ -59,4 +59,16 @@ export class AssignmentSubmissionsService {
 
     return this.assignmentSubmissionsRepository.getEntityManager().persistAndFlush(submission);
   }
+
+  async getSubmissionDownloadUrl(submissionId: number) {
+    const submission = await this.assignmentSubmissionsRepository.findOneOrFail({
+      id: submissionId,
+    });
+
+    const fileKey = submission.fileUrl.split("project-dev-bucket/")[1];
+
+    const downloadUrl = await this.fileUploadsService.getDownloadUrl(fileKey);
+
+    return downloadUrl;
+  }
 }

@@ -48,4 +48,12 @@ export class MessagesController {
     const token = extractBearerAuthTokenFromHeaders(req.headers);
     return this.messagesService.addMessage(createMessageDto, id, token, file);
   }
+
+  @Get(":id/messages/:messageId")
+  getMessageAttachmentDownlodUrl(
+    @Param("id", ParseIntPipe) id: number,
+    @Param("messageId", ParseIntPipe) messageId: number,
+  ) {
+    return this.messagesService.getResourceDownloadUrl(id, messageId);
+  }
 }

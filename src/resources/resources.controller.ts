@@ -67,4 +67,12 @@ export class ResourcesController {
   ) {
     return this.resourcesService.deleteResource(classroomId, resourceId);
   }
+
+  @Get(":classroomId/resources/:resourceId")
+  getResourceDownloadUrl(
+    @Param("classroomId", ParseIntPipe) classroomId: number,
+    @Param("resourceId", ParseIntPipe) resourceId: number,
+  ) {
+    return this.resourcesService.getResourceDownloadUrl(classroomId, resourceId);
+  }
 }

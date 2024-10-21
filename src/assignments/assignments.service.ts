@@ -94,4 +94,17 @@ export class AssignmentsService {
 
     await this.assignmentsRepository.getEntityManager().removeAndFlush(assignment);
   }
+
+  async getAssignmentDownloadUrl(classroomId: number, assignmentId: number) {
+    const assignment = await this.assignmentsRepository.findOneOrFail({
+      id: assignmentId,
+      classroom: classroomId,
+    });
+
+    const fileKey = assignment.fileUrl.split("project-dev-bucket/")[1];
+
+    const downloadUrl = await this.fileUploadsService.getDownloadUrl(fileKey);
+
+    return downloadUrl;
+  }
 }

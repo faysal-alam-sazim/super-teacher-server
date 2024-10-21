@@ -93,4 +93,17 @@ export class ResourcesService {
 
     await this.resourcesRepository.getEntityManager().removeAndFlush(resource);
   }
+
+  async getResourceDownloadUrl(classroomId: number, resourceId: number) {
+    const resource = await this.resourcesRepository.findOneOrFail({
+      id: resourceId,
+      classroom: classroomId,
+    });
+
+    const fileKey = resource.fileUrl.split("project-dev-bucket/")[1];
+
+    const downloadUrl = await this.fileUploadsService.getDownloadUrl(fileKey);
+
+    return downloadUrl;
+  }
 }

@@ -77,4 +77,12 @@ export class AssignmentsController {
   ) {
     return this.assignmentsService.deleteAssignment(classroomId, assignmentId);
   }
+
+  @Get(":classroomId/assignments/:assignmentId")
+  getDownloadUrl(
+    @Param("classroomId", ParseIntPipe) classroomId: number,
+    @Param("assignmentId", ParseIntPipe) assignmentId: number,
+  ) {
+    return this.assignmentsService.getAssignmentDownloadUrl(classroomId, assignmentId);
+  }
 }

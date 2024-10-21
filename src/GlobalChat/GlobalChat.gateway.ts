@@ -80,6 +80,7 @@ export class GlobalChatGateway extends AbstractWebsocketGateway {
   handleSendMessage(@MessageBody() message: ISendMessagePayload): void {
     const classroomRoom = `classroom_${message.classroomId}`;
     const payload = {
+      id: message.id,
       classroom: message.classroomId,
       message: message.message,
       attachmentUrl: message.attachmentUrl,

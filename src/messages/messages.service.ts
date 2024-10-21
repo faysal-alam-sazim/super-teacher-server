@@ -64,6 +64,7 @@ export class MessagesService {
     await this.em.persistAndFlush(message);
 
     const payload: ISendMessagePayload = {
+      id: message.id,
       message: createMessageDto.message,
       attachmentUrl: createMessageDto.attachmentUrl,
       classroomId: classroom.id,
@@ -86,5 +87,22 @@ export class MessagesService {
       { populate: ["sender"] },
     );
     return messages;
+  }
+
+  async getResourceDownloadUrl(classroomId: number, messageId: number) {
+    const message = await this.messagesRepository.findOneOrFail({
+      id: messageId,
+      classroom: classroomId,
+    });
+
+    const fileKey = message.attachmentUrl?.split("project-dev-bucket/")[1];
+
+    if (fileKey) {
+      const downloadUrl = await this.fileUploadsService.getDownloadUrl(fileKey);
+
+      return downloadUrl;
+    }
+
+    return "";
   }
 }

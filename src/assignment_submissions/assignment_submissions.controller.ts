@@ -61,4 +61,9 @@ export class AssignmentSubmissionsController {
       user.id,
     );
   }
+
+  @Get("submissions/:submissionId")
+  getSubmissionDownloadUrl(@Param("submissionId", ParseIntPipe) submissionId: number) {
+    return this.assignmentSubmissionsService.getSubmissionDownloadUrl(submissionId);
+  }
 }
