@@ -52,7 +52,7 @@ export class ClassroomsController {
   }
 
   @Post(":id/students")
-  @UseGuards(RolesGuard)
+  @UseGuards(RolesGuard, ClassroomOwnershipGuard)
   @Roles(EUserRole.TEACHER)
   addStudent(@Param("id", ParseIntPipe) id: number, @Body() enrollStudentDto: EnrollStudentDto) {
     return this.classroomsService.addStudent(id, enrollStudentDto.studentId);
