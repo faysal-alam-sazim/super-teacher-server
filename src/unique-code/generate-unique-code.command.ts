@@ -43,6 +43,8 @@ export class GenerateUniqueCodeCommand extends CommandRunner {
         });
 
         await em.persistAndFlush(uniqueCode);
+
+        console.log(`Unique code is generated. Code: ${code}`);
       });
       this.logger.log(`Unique code generated for email: ${email}`);
     } catch (UniqueConstraintViolationException) {

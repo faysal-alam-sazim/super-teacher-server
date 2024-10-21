@@ -37,13 +37,13 @@ export class UpdateResetCounterCommand extends CommandRunner {
         uniqueCode.resetCounter = 3;
 
         await em.persistAndFlush(uniqueCode);
+
+        console.log(`Code Reset successful for email: ${email}. New code is ${code}`);
       });
     } catch (error) {
       console.error("Error reseting code:", error);
-      return;
-    }
 
-    console.log(`Code Reset successful for email: ${email}`);
+    }
   }
 
   @Option({
