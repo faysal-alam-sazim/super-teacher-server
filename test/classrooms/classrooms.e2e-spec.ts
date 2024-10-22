@@ -505,4 +505,67 @@ describe("ClassroomsController (e2e)", () => {
     it("returns UNAUTHORIZED(401) if user is not authenticated", () =>
       request(httpServer).get(`/classrooms/${classroom.id}/exams`).expect(HttpStatus.UNAUTHORIZED));
   });
+
+  describe("PATCH /classrooms/:classroomId/exams/:examId", () => {
+    let teacherUser: User;
+    let studentUser: User;
+    let classroom: Classroom;
+    let exam: Exam;
+    const testUserPassword = faker.internet.password();
+
+    const updatingExam = {
+      title: faker.word.words(3),
+    };
+
+    beforeAll(async () => {
+      studentUser = await createSingleStudentUserInDb(dbService, {
+        email: faker.internet.email(),
+        password: testUserPassword,
+      });
+
+      teacherUser = await createSingleTeacherUserInDb(dbService, {
+        email: faker.internet.email(),
+        password: testUserPassword,
+      });
+
+      const classrooms = await createClassroomInDb(dbService, teacherUser.teacher);
+      classroom = classrooms[0];
+
+      const exams = await createExamsInDb(dbService, classroom);
+      exam = exams[0];
+    });
+
+    it("should return OK(200) as the exam is updated by teacher", async () => {
+      const token = await getAccessToken(httpServer, teacherUser.email, testUserPassword);
+
+      await request(httpServer)
+        .patch(`/classrooms/${classroom.id}/exams/${exam.id}`)
+        .set("Authorization", `Bearer ${token}`)
+        .send(updatingExam)
+        .expect(HttpStatus.OK)
+        .expect((response) => {
+          const { data } = response.body;
+          expect(data).toEqual(
+            expect.objectContaining({
+              title: updatingExam.title,
+            }),
+          );
+        });
+    });
+
+    it("should return FORBIDDEN(403) for trying to update exam as student", async () => {
+      const token = await getAccessToken(httpServer, studentUser.email, testUserPassword);
+
+      await request(httpServer)
+        .patch(`/classrooms/${classroom.id}/exams/${exam.id}`)
+        .set("Authorization", `Bearer ${token}`)
+        .send(updatingExam)
+        .expect(HttpStatus.FORBIDDEN);
+    });
+
+    it("returns UNAUTHORIZED(401) if user is not authenticated", () =>
+      request(httpServer)
+        .patch(`/classrooms/${classroom.id}/exams/${exam.id}`)
+        .expect(HttpStatus.UNAUTHORIZED));
+  });
 });
