@@ -6,6 +6,7 @@ import { faker } from "@faker-js/faker";
 import request from "supertest";
 
 import { Classroom } from "@/common/entities/classrooms.entity";
+import { Exam } from "@/common/entities/exams.entity";
 import { User } from "@/common/entities/users.entity";
 import { MailService } from "@/mail/mail.service";
 
@@ -13,6 +14,7 @@ import { bootstrapTestServer } from "../utils/bootstrap";
 import { truncateTables } from "../utils/db";
 import { getAccessToken } from "../utils/helpers/access-token.helpers";
 import { createClassroomInDb } from "../utils/helpers/create-classrooms-in-db";
+import { createExamsInDb } from "../utils/helpers/create-exam-in-db";
 import { enrollStudentInClassroomsInDb } from "../utils/helpers/enroll-student-in-classrooms";
 import {
   createSingleStudentUserInDb,
@@ -405,5 +407,41 @@ describe("ClassroomsController (e2e)", () => {
       request(httpServer)
         .post(`/classrooms/${classroom.id}/students`)
         .expect(HttpStatus.UNAUTHORIZED));
+  });
+
+  describe("GET /classrooms/:classroomId/exams", () => {
+    let teacherUser: User;
+    let classroom: Classroom;
+    const testUserPassword = faker.internet.password();
+    let exams: Exam[];
+
+    beforeAll(async () => {
+      teacherUser = await createSingleTeacherUserInDb(dbService, {
+        email: faker.internet.email(),
+        password: testUserPassword,
+      });
+
+      const classrooms = await createClassroomInDb(dbService, teacherUser.teacher);
+      classroom = classrooms[0];
+
+      exams = await createExamsInDb(dbService, classroom, 5);
+    });
+
+    it("should return OK(200) with exams created by teacher", async () => {
+      const token = await getAccessToken(httpServer, teacherUser.email, testUserPassword);
+
+      await request(httpServer)
+        .get(`/classrooms/${classroom.id}/exams`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(HttpStatus.OK)
+        .expect((response) => {
+          const { data } = response.body;
+          expect(Array.isArray(data)).toBe(true);
+          expect(data.length).toEqual(exams.length);
+        });
+    });
+
+    it("returns UNAUTHORIZED(401) if user is not authenticated", () =>
+      request(httpServer).get(`/classrooms/${classroom.id}/exams`).expect(HttpStatus.UNAUTHORIZED));
   });
 });
