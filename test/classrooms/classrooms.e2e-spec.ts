@@ -7,6 +7,7 @@ import request from "supertest";
 
 import { Classroom } from "@/common/entities/classrooms.entity";
 import { User } from "@/common/entities/users.entity";
+import { MailService } from "@/mail/mail.service";
 
 import { bootstrapTestServer } from "../utils/bootstrap";
 import { truncateTables } from "../utils/db";
@@ -356,6 +357,9 @@ describe("ClassroomsController (e2e)", () => {
 
       const classrooms = await createClassroomInDb(dbService, teacherUser.teacher);
       classroom = classrooms[0];
+
+      const mailService = app.get<MailService>(MailService);
+      jest.spyOn(mailService, "sendMail").mockResolvedValue(undefined);
     });
 
     it("should return CREATED(201) after enrolling student by teacher", async () => {
@@ -376,6 +380,15 @@ describe("ClassroomsController (e2e)", () => {
         .set("Authorization", `Bearer ${token}`)
         .send({ studentId: studentUser.student.id })
         .expect(HttpStatus.FORBIDDEN);
+
+      const mailService = app.get<MailService>(MailService);
+      expect(mailService.sendMail).toHaveBeenCalledWith(
+        studentUser.email,
+        "Confirmation of Enrollment",
+        expect.stringContaining(
+          `Hello ${studentUser.firstName}, you're successfully enrolled to class ${classroom.title}!`,
+        ),
+      );
     });
 
     it("should return FORBIDDEN(403) for trying to enroll student in another teacher's classroom", async () => {
