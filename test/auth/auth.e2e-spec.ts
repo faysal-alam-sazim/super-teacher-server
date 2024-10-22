@@ -231,7 +231,7 @@ describe("AuthController (e2e)", () => {
         .send({ email: MOCK_AUTH_EMAIL, password: "wrongpassword" })
         .expect(HttpStatus.UNAUTHORIZED));
 
-    it("Without authentication params, gets back 401 Unauthenticated", () =>
+    it("should return 401 Unauthorized without authentication params", () =>
       request(httpServer).post("/auth/login").expect(HttpStatus.UNAUTHORIZED));
   });
 });
