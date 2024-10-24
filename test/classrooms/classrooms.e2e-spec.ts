@@ -6,6 +6,7 @@ import { faker } from "@faker-js/faker";
 import request from "supertest";
 
 import { Classroom } from "@/common/entities/classrooms.entity";
+import { Exam } from "@/common/entities/exams.entity";
 import { User } from "@/common/entities/users.entity";
 import { MailService } from "@/mail/mail.service";
 
@@ -13,6 +14,7 @@ import { bootstrapTestServer } from "../utils/bootstrap";
 import { truncateTables } from "../utils/db";
 import { getAccessToken } from "../utils/helpers/access-token.helpers";
 import { createClassroomInDb } from "../utils/helpers/create-classrooms-in-db";
+import { createExamsInDb } from "../utils/helpers/create-exam-in-db";
 import { enrollStudentInClassroomsInDb } from "../utils/helpers/enroll-student-in-classrooms";
 import {
   createSingleStudentUserInDb,
@@ -404,6 +406,215 @@ describe("ClassroomsController (e2e)", () => {
     it("returns UNAUTHORIZED(401) if user is not authenticated", () =>
       request(httpServer)
         .post(`/classrooms/${classroom.id}/students`)
+        .expect(HttpStatus.UNAUTHORIZED));
+  });
+
+  describe("GET /classrooms/:classroomId/exams", () => {
+    let teacherUser: User;
+    let classroom: Classroom;
+    const testUserPassword = faker.internet.password();
+    let exams: Exam[];
+
+    beforeAll(async () => {
+      teacherUser = await createSingleTeacherUserInDb(dbService, {
+        email: faker.internet.email(),
+        password: testUserPassword,
+      });
+
+      const classrooms = await createClassroomInDb(dbService, teacherUser.teacher);
+      classroom = classrooms[0];
+
+      exams = await createExamsInDb(dbService, classroom, 5);
+    });
+
+    it("should return OK(200) with exams created by teacher", async () => {
+      const token = await getAccessToken(httpServer, teacherUser.email, testUserPassword);
+
+      await request(httpServer)
+        .get(`/classrooms/${classroom.id}/exams`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(HttpStatus.OK)
+        .expect((response) => {
+          const { data } = response.body;
+          expect(Array.isArray(data)).toBe(true);
+          expect(data.length).toEqual(exams.length);
+        });
+    });
+
+    it("returns UNAUTHORIZED(401) if user is not authenticated", () =>
+      request(httpServer).get(`/classrooms/${classroom.id}/exams`).expect(HttpStatus.UNAUTHORIZED));
+  });
+
+  describe("POST /classrooms/:classroomId/exams", () => {
+    let teacherUser: User;
+    let studentUser: User;
+    let classroom: Classroom;
+    const testUserPassword = faker.internet.password();
+
+    const newExam = {
+      title: faker.word.words(3),
+      instruction: faker.word.words(10),
+      date: faker.date.future(),
+    };
+
+    beforeAll(async () => {
+      studentUser = await createSingleStudentUserInDb(dbService, {
+        email: faker.internet.email(),
+        password: testUserPassword,
+      });
+
+      teacherUser = await createSingleTeacherUserInDb(dbService, {
+        email: faker.internet.email(),
+        password: testUserPassword,
+      });
+
+      const classrooms = await createClassroomInDb(dbService, teacherUser.teacher);
+      classroom = classrooms[0];
+    });
+
+    it("should return CREATED(201) as the exam is created by teacher", async () => {
+      const token = await getAccessToken(httpServer, teacherUser.email, testUserPassword);
+
+      await request(httpServer)
+        .post(`/classrooms/${classroom.id}/exams`)
+        .set("Authorization", `Bearer ${token}`)
+        .send(newExam)
+        .expect(HttpStatus.CREATED)
+        .expect((response) => {
+          const { data } = response.body;
+          expect(data).toEqual(
+            expect.objectContaining({
+              title: newExam.title,
+              instruction: newExam.instruction,
+              date: newExam.date.toISOString(),
+            }),
+          );
+        });
+    });
+
+    it("should return FORBIDDEN(403) for trying to create exam as student", async () => {
+      const token = await getAccessToken(httpServer, studentUser.email, testUserPassword);
+
+      await request(httpServer)
+        .post(`/classrooms/${classroom.id}/exams`)
+        .set("Authorization", `Bearer ${token}`)
+        .send(newExam)
+        .expect(HttpStatus.FORBIDDEN);
+    });
+
+    it("returns UNAUTHORIZED(401) if user is not authenticated", () =>
+      request(httpServer).get(`/classrooms/${classroom.id}/exams`).expect(HttpStatus.UNAUTHORIZED));
+  });
+
+  describe("PATCH /classrooms/:classroomId/exams/:examId", () => {
+    let teacherUser: User;
+    let studentUser: User;
+    let classroom: Classroom;
+    let exam: Exam;
+    const testUserPassword = faker.internet.password();
+
+    const updatingExam = {
+      title: faker.word.words(3),
+    };
+
+    beforeAll(async () => {
+      studentUser = await createSingleStudentUserInDb(dbService, {
+        email: faker.internet.email(),
+        password: testUserPassword,
+      });
+
+      teacherUser = await createSingleTeacherUserInDb(dbService, {
+        email: faker.internet.email(),
+        password: testUserPassword,
+      });
+
+      const classrooms = await createClassroomInDb(dbService, teacherUser.teacher);
+      classroom = classrooms[0];
+
+      const exams = await createExamsInDb(dbService, classroom);
+      exam = exams[0];
+    });
+
+    it("should return OK(200) as the exam is updated by teacher", async () => {
+      const token = await getAccessToken(httpServer, teacherUser.email, testUserPassword);
+
+      await request(httpServer)
+        .patch(`/classrooms/${classroom.id}/exams/${exam.id}`)
+        .set("Authorization", `Bearer ${token}`)
+        .send(updatingExam)
+        .expect(HttpStatus.OK)
+        .expect((response) => {
+          const { data } = response.body;
+          expect(data).toEqual(
+            expect.objectContaining({
+              title: updatingExam.title,
+            }),
+          );
+        });
+    });
+
+    it("should return FORBIDDEN(403) for trying to update exam as student", async () => {
+      const token = await getAccessToken(httpServer, studentUser.email, testUserPassword);
+
+      await request(httpServer)
+        .patch(`/classrooms/${classroom.id}/exams/${exam.id}`)
+        .set("Authorization", `Bearer ${token}`)
+        .send(updatingExam)
+        .expect(HttpStatus.FORBIDDEN);
+    });
+
+    it("returns UNAUTHORIZED(401) if user is not authenticated", () =>
+      request(httpServer)
+        .patch(`/classrooms/${classroom.id}/exams/${exam.id}`)
+        .expect(HttpStatus.UNAUTHORIZED));
+  });
+
+  describe("DELETE /classrooms/:classroomId/exams/:examId", () => {
+    let teacherUser: User;
+    let studentUser: User;
+    let classroom: Classroom;
+    let exam: Exam;
+    const testUserPassword = faker.internet.password();
+
+    beforeAll(async () => {
+      studentUser = await createSingleStudentUserInDb(dbService, {
+        email: faker.internet.email(),
+        password: testUserPassword,
+      });
+
+      teacherUser = await createSingleTeacherUserInDb(dbService, {
+        email: faker.internet.email(),
+        password: testUserPassword,
+      });
+
+      const classrooms = await createClassroomInDb(dbService, teacherUser.teacher);
+      classroom = classrooms[0];
+
+      const exams = await createExamsInDb(dbService, classroom);
+      exam = exams[0];
+    });
+
+    it("should return OK(200) as the exam is deleted by teacher", async () => {
+      const token = await getAccessToken(httpServer, teacherUser.email, testUserPassword);
+
+      await request(httpServer)
+        .delete(`/classrooms/${classroom.id}/exams/${exam.id}`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(HttpStatus.OK);
+    });
+
+    it("should return FORBIDDEN(403) for trying to delete exam as student", async () => {
+      const token = await getAccessToken(httpServer, studentUser.email, testUserPassword);
+
+      await request(httpServer)
+        .delete(`/classrooms/${classroom.id}/exams/${exam.id}`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(HttpStatus.FORBIDDEN);
+    });
+
+    it("returns UNAUTHORIZED(401) if user is not authenticated", () =>
+      request(httpServer)
+        .delete(`/classrooms/${classroom.id}/exams/${exam.id}`)
         .expect(HttpStatus.UNAUTHORIZED));
   });
 });
