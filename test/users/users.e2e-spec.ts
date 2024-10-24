@@ -10,7 +10,7 @@ import { User } from "@/common/entities/users.entity";
 import { bootstrapTestServer } from "../utils/bootstrap";
 import { truncateTables } from "../utils/db";
 import { getAccessToken } from "../utils/helpers/access-token.helpers";
-import { createUserInDb } from "../utils/helpers/users.helpers";
+import { createStudentUsersInDb, createUserInDb } from "../utils/helpers/users.helpers";
 import { THttpServer } from "../utils/types";
 
 describe("UsersController (e2e)", () => {
@@ -71,5 +71,27 @@ describe("UsersController (e2e)", () => {
 
     it("returns UNAUTHORIZED(401) if user is not authenticated", () =>
       request(httpServer).get("/users/me").expect(HttpStatus.UNAUTHORIZED));
+  });
+
+  describe("GET /users/students", () => {
+    beforeAll(async () => {
+      await createStudentUsersInDb(dbService, 5);
+    });
+
+    it("returns OK (200) with all student user data", () => {
+      request(httpServer)
+        .get("/users/students")
+        .expect(HttpStatus.OK)
+        .expect((response) => {
+          const { data } = response.body;
+          expect(Array.isArray(data)).toBe(true);
+
+          const student = data[0];
+          expect(student).toHaveProperty("email");
+          expect(student).toHaveProperty("firstName");
+          expect(student).toHaveProperty("lastName");
+          expect(student).toHaveProperty("role", "STUDENT");
+        });
+    });
   });
 });
