@@ -7,6 +7,7 @@ import request from "supertest";
 
 import { Classroom } from "@/common/entities/classrooms.entity";
 import { User } from "@/common/entities/users.entity";
+import { MailService } from "@/mail/mail.service";
 
 import { bootstrapTestServer } from "../utils/bootstrap";
 import { truncateTables } from "../utils/db";
@@ -329,5 +330,80 @@ describe("ClassroomsController (e2e)", () => {
 
     it("returns UNAUTHORIZED(401) if user is not authenticated", () =>
       request(httpServer).delete(`/classrooms/${classroom.id}`).expect(HttpStatus.UNAUTHORIZED));
+  });
+
+  describe("POST /classrooms/:id/students", () => {
+    let teacherUser: User;
+    let anotherTeacherUser: User;
+    let studentUser: User;
+    let classroom: Classroom;
+    const testUserPassword = faker.internet.password();
+
+    beforeAll(async () => {
+      studentUser = await createSingleStudentUserInDb(dbService, {
+        email: faker.internet.email(),
+        password: testUserPassword,
+      });
+
+      teacherUser = await createSingleTeacherUserInDb(dbService, {
+        email: faker.internet.email(),
+        password: testUserPassword,
+      });
+
+      anotherTeacherUser = await createSingleTeacherUserInDb(dbService, {
+        email: faker.internet.email(),
+        password: testUserPassword,
+      });
+
+      const classrooms = await createClassroomInDb(dbService, teacherUser.teacher);
+      classroom = classrooms[0];
+
+      const mailService = app.get<MailService>(MailService);
+      jest.spyOn(mailService, "sendMail").mockResolvedValue(undefined);
+    });
+
+    it("should return CREATED(201) after enrolling student by teacher", async () => {
+      const token = await getAccessToken(httpServer, teacherUser.email, testUserPassword);
+
+      await request(httpServer)
+        .post(`/classrooms/${classroom.id}/students`)
+        .set("Authorization", `Bearer ${token}`)
+        .send({ studentId: studentUser.student.id })
+        .expect(HttpStatus.CREATED);
+    });
+
+    it("should return FORBIDDEN(403) for trying to enroll as student", async () => {
+      const token = await getAccessToken(httpServer, studentUser.email, testUserPassword);
+
+      await request(httpServer)
+        .post(`/classrooms/${classroom.id}/students`)
+        .set("Authorization", `Bearer ${token}`)
+        .send({ studentId: studentUser.student.id })
+        .expect(HttpStatus.FORBIDDEN);
+
+      const mailService = app.get<MailService>(MailService);
+      expect(mailService.sendMail).toHaveBeenCalledWith(
+        studentUser.email,
+        "Confirmation of Enrollment",
+        expect.stringContaining(
+          `Hello ${studentUser.firstName}, you're successfully enrolled to class ${classroom.title}!`,
+        ),
+      );
+    });
+
+    it("should return FORBIDDEN(403) for trying to enroll student in another teacher's classroom", async () => {
+      const token = await getAccessToken(httpServer, anotherTeacherUser.email, testUserPassword);
+
+      await request(httpServer)
+        .post(`/classrooms/${classroom.id}/students`)
+        .set("Authorization", `Bearer ${token}`)
+        .send({ studentId: studentUser.student.id })
+        .expect(HttpStatus.FORBIDDEN);
+    });
+
+    it("returns UNAUTHORIZED(401) if user is not authenticated", () =>
+      request(httpServer)
+        .post(`/classrooms/${classroom.id}/students`)
+        .expect(HttpStatus.UNAUTHORIZED));
   });
 });
