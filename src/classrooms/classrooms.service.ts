@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 
 import { EntityManager } from "@mikro-orm/postgresql";
 
@@ -87,17 +87,12 @@ export class ClassroomsService {
     return classroomStudent;
   }
 
-  async removeStudentFromClassroom(userId: number, classroomId: number, studentId: number) {
-    const user = await this.usersRepository.findOneOrFail({ id: userId });
+  async removeStudentFromClassroom(classroomId: number, studentId: number) {
     const classroom = await this.classroomsRepository.findOneOrFail({ id: classroomId });
 
-    if (user.teacher.id !== classroom.teacher.id) {
-      throw new UnauthorizedException("You are not the teacher of this classroom!");
-    }
-
     const classroomStudent = await this.classroomsStudentsRepository.findOneOrFail({
-      studentId,
-      classroomId,
+      studentId: studentId,
+      classroomId: classroom.id,
     });
 
     await this.em.removeAndFlush(classroomStudent);
